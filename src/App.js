@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import io from "socket.io-client";
 import './App.css';
-import Menu from './components/Menu'
+import {connect} from 'react-redux';
+import Menu from './components/Menu';
+import { createGame } from './actions/gameActions'
 
 
-function App() {
+function App({game, createGame}) {
   const [socket, setSocket] = useState();
   useEffect(() => {
     const socket = io.connect('localhost:3000');
@@ -16,7 +18,7 @@ function App() {
     });
 
     socket.on('game created', ({gameName}) => {
-      window.game = {name: gameName}
+      createGame({name: gameName, playersJoined: 1})
     });
 
     socket.on('begin game', () => {
@@ -32,4 +34,8 @@ function App() {
   );
 }
 
-export default App;
+const mapStateToProps = state => ({
+  game: state.game
+})
+
+export default connect(mapStateToProps, {createGame})(App);
