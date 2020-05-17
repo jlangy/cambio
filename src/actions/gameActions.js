@@ -1,4 +1,4 @@
-import { NEW_GAME, ADD_PLAYER } from './types';
+import { NEW_GAME, ADD_PLAYER, BEGIN_GAME } from './types';
 
 export const createGame = game => dispatch => {
   dispatch({
@@ -10,5 +10,12 @@ export const createGame = game => dispatch => {
 export const addPlayer = () => dispatch => {
   dispatch({
       type: ADD_PLAYER,
+    });
+}
+
+export const beginGame = playerInfo => dispatch => {
+  dispatch({
+      type: BEGIN_GAME,
+      payload: playerInfo
     });
 }

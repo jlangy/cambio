@@ -1,6 +1,6 @@
 :root {
-  --card-height: 300px;
-  --card-width: 150px;
+  --card-height: 100px;
+  --card-width: 50px;
 }
 
 .front, .back {
@@ -12,9 +12,6 @@
 }
 
 .card-container {
-  position: absolute;
-  top: 150px;
-  left: 100px;
   height: var(--card-height);
   width: var(--card-width);
   transform-style: preserve-3d;
@@ -36,6 +33,6 @@
   backface-visibility: hidden;
   transform-style: preserve-3d;
   transition: -webkit-transform ease 500ms;
-  transition: transform ease 1500ms;
+  transition: transform ease 1s;
   box-shadow: 2px 2px 2px rgba(0,0,0,0.5);
 }
