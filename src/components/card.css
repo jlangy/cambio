@@ -1,0 +1,41 @@
+:root {
+  --card-height: 300px;
+  --card-width: 150px;
+}
+
+.front, .back {
+  height: var(--card-height);
+  width: var(--card-width);
+  border: 1px solid black;
+  position: absolute;
+  top: 0;
+}
+
+.card-container {
+  position: absolute;
+  top: 150px;
+  left: 100px;
+  height: var(--card-height);
+  width: var(--card-width);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.card-container.flipped > .front {
+  transform: rotateY(180deg);
+}
+.card-container.flipped > .back {
+  transform: rotateY(0deg);
+}
+
+.card-container > .back {
+  transform: rotateY(-180deg);
+}
+
+.front, .back {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  transition: -webkit-transform ease 500ms;
+  transition: transform ease 1500ms;
+  box-shadow: 2px 2px 2px rgba(0,0,0,0.5);
+}

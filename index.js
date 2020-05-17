@@ -30,7 +30,8 @@ io.on('connection', socket => {
     } else {
       room.playersJoined += 1;
       socket.join(gameName)
-      socket.emit('game joined', {gameName})
+      socket.emit('game joined', {gameName, playersJoined: room.playersJoined})
+      socket.to(gameName).emit('player joined')
       if(room.playersJoined === room.totalPlayers){
         io.in(gameName).emit('begin game')
       }
