@@ -16,12 +16,23 @@
   width: var(--card-width);
   transform-style: preserve-3d;
   perspective: 1000px;
+  transition: right 1s;
+  right: 0;
 }
 
-.card-container.flipped > .front {
+.card-flip {
+  right: 150px;
+}
+
+.deck-container>.card-container{
+  position: absolute;
+  top:0
+}
+
+.card-container.flipped > .front, .card-container.card-flip > .front {
   transform: rotateY(180deg);
 }
-.card-container.flipped > .back {
+.card-container.flipped > .back, .card-container.card-flip > .back {
   transform: rotateY(0deg);
 }
 
@@ -32,7 +43,7 @@
 .front, .back {
   backface-visibility: hidden;
   transform-style: preserve-3d;
-  transition: -webkit-transform ease 500ms;
+  transition: -webkit-transform ease 1000ms;
   transition: transform ease 1s;
   box-shadow: 2px 2px 2px rgba(0,0,0,0.5);
 }

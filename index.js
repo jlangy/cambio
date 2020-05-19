@@ -28,7 +28,7 @@ function startGame(gameName){
   room.players = [];
   for(let i = 0; i < room.totalPlayers; i++){
     const hand = deck.draw(4);
-    room.players.push({hand})
+    room.players.push({hand, player: i+1})
   }
   io.in(gameName).emit('begin game', {deck, players: room.players});
 }
@@ -36,13 +36,17 @@ function startGame(gameName){
 io.on('connection', socket => {
   console.log('connection established')
 
+  socket.on('draw pile selected', ({roomName}) => {
+    io.in(roomName).emit('flip draw card')
+  });
+
   socket.on('start game', ({gameName}) => {
     if(rooms[gameName]){
       socket.emit('room name taken')
     } else {
       rooms[gameName] = {totalPlayers: 2, playersJoined: 1}
       socket.join(gameName);
-      socket.emit('game created', {gameName})
+      socket.emit('game created', {gameName, player: 1})
     }
   })
 

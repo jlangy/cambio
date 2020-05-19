@@ -1,0 +1,8 @@
+.deck-container{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  grid-template-columns: 50px;
+  grid-template-rows: 100px;
+}
