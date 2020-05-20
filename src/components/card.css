@@ -9,6 +9,7 @@
   border: 1px solid black;
   position: absolute;
   top: 0;
+  background-color: white;
 }
 
 .card-container {
@@ -16,17 +17,20 @@
   width: var(--card-width);
   transform-style: preserve-3d;
   perspective: 1000px;
-  transition: right 1s;
+  transition: all 1s;
+  top: 0;
   right: 0;
+  left: 0;
+  bottom: 0;
+  position: relative
 }
 
 .card-flip {
-  right: 150px;
+  top: 120px;
 }
 
 .deck-container>.card-container{
   position: absolute;
-  top:0
 }
 
 .card-container.flipped > .front, .card-container.card-flip > .front {

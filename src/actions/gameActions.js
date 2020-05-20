@@ -1,4 +1,4 @@
-import { NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE } from './types';
+import { NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, DISCARD_FROM_BOARD } from './types';
 
 //Game phases:
 //_initialCardPick
@@ -28,6 +28,13 @@ export const beginGame = playerInfo => dispatch => {
 export const changePhase = phaseInfo => dispatch => {
   dispatch({
       type: CHANGE_PHASE,
+      payload: phaseInfo
+    });
+}
+
+export const discardFromBoard = phaseInfo => dispatch => {
+  dispatch({
+      type: DISCARD_FROM_BOARD,
       payload: phaseInfo
     });
 }

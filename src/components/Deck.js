@@ -10,6 +10,7 @@ function Deck({game, changePhase, socket}) {
 
   function handleDrawPileClick(){
     if((game.turn === game.player) && game.gamePhase === "initialCardPick"){
+      changePhase({phase: "drawPileSelected", actions: 'flipDrawCard'});
       socket.emit('draw pile selected', {roomName: game.name})
     }
   }
@@ -17,9 +18,9 @@ function Deck({game, changePhase, socket}) {
   function handleDiscardPileClick(){}
 
   return (
-    <div>
-      <div className="deck-container" onClick={handleDiscardPileClick}>
-        {game.discards && game.discards._stack.map((card,i) => <Card key={i} back={card} />)}
+    <div className='decks-container'>
+      <div id="discards-container" className="deck-container" onClick={handleDiscardPileClick}>
+        {game.discards && game.discards.map((card,i) => <Card key={i} front={card} />)}
       </div>
       <div className='deck-container' onClick={handleDrawPileClick}>
         {game.deck && game.deck._stack.map((card,i) => <Card key={i} back={card} index={i}/> )}

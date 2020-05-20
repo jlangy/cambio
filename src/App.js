@@ -23,8 +23,8 @@ function App({game, createGame, addPlayer, beginGame, changePhase}) {
       createGame({name: gameName, playersJoined: 1, player})
     });
 
-    socket.on('begin game', ({deck, players}) => {
-      beginGame({deck, players})
+    socket.on('begin game', ({deck, players, discards}) => {
+      beginGame({deck, players, discards})
     })
     
     socket.on('player joined', () => {
@@ -34,7 +34,7 @@ function App({game, createGame, addPlayer, beginGame, changePhase}) {
 
     socket.on('flip draw card', () => {
       changePhase({phase: "drawPileSelected", actions: 'flipDrawCard'});
-      
+
     })
 
   }, []);
@@ -42,7 +42,7 @@ function App({game, createGame, addPlayer, beginGame, changePhase}) {
   return (
     <div>
       <h2>Cambio</h2>
-      <button onClick={() => beginGame({deck: {_stack: ['a1','a2']}, players: [{hand: ['c1','c2','c3','c4']}, {hand: ['a1','a2','a3','a4']},{hand: ['c1','c2','c3','c4']}, {hand: ['a1','a2','a3','a4']}]})}>start game test</button>
+      <button onClick={() => beginGame({deck: {_stack: ['a1','a2']}, discards: ['a1','a2'], players: [{hand: ['c1','c2','c3','c4']}, {hand: ['a1','a2','a3','a4']}]})}>start game test</button>
       {!game.playing &&  <Menu socket={socket}/>}
       {game.playing && <Game socket={socket}/>}
     </div>

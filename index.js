@@ -24,13 +24,16 @@ const rooms = {};
 function startGame(gameName){
   let room = rooms[gameName]
   let deck = new Deck(cards);
+  console.log(deck)
   deck.shuffle();
   room.players = [];
   for(let i = 0; i < room.totalPlayers; i++){
     const hand = deck.draw(4);
+    console.log(hand)
     room.players.push({hand, player: i+1})
   }
-  io.in(gameName).emit('begin game', {deck, players: room.players});
+  const discarded = deck.draw()
+  io.in(gameName).emit('begin game', {deck, discards: [discarded], players: room.players});
 }
 
 io.on('connection', socket => {
