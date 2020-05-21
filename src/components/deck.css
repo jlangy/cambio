@@ -3,6 +3,7 @@
   display: grid;
   grid-template-columns: 50px;
   grid-template-rows: 100px;
+  margin-bottom: 100%;
 }
 
 .decks-container {

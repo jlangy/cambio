@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import { changePhase, discardFromBoard } from '../actions/gameActions'
 import './player.css';
 
-function Player({hand, position, game, changePhase, discardFromBoard}) {
+function Player({hand, position, game, changePhase, discardFromBoard, socket}) {
   const [flipped, setFlipped] = useState();
 
   let top, bottom, right, left, transform, transformOrigin;
@@ -69,6 +69,8 @@ function Player({hand, position, game, changePhase, discardFromBoard}) {
 
   function handleClick(event){
     if(game.gamePhase === "drawPileSelected" && game.turn === game.player && position === 0){
+      const cardPosition = event.target.parentElement.getAttribute('data-position');
+      socket.emit('take draw card', {position: cardPosition, roomName: game.name})
       const clickedCard = event.target.parentElement;
       let drawCard = document.getElementsByClassName('card-flip');
       drawCard.length > 1 ? console.error('Something has gone wrong, more than 1 card with .card-flip class') : drawCard = drawCard[0];
@@ -80,7 +82,7 @@ function Player({hand, position, game, changePhase, discardFromBoard}) {
       moveCard(drawCard, clickedCard)
 
       //flip cards and update state
-      flipCard(event.target.parentElement.getAttribute('data-position'));
+      flipCard(cardPosition);
       changePhase({phase: 'turn end'});
       const target = event.target;
 
@@ -95,7 +97,7 @@ function Player({hand, position, game, changePhase, discardFromBoard}) {
 
   const containerStyles = {top,bottom,left,right,transform, transformOrigin}
   return (
-    <div className="hand-container" style={containerStyles}>
+    <div className="hand-container" style={containerStyles} data-hand={`hand-${position}`}>
       {hand.map((card,i) => <Card back={card} key={i} onClick={handleClick} position={i} flipped={flipped && flipped.position == i}/>)}
     </div>
   )

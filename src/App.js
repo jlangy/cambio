@@ -3,11 +3,10 @@ import io from "socket.io-client";
 import './App.css';
 import {connect} from 'react-redux';
 import Menu from './components/Menu';
-import { createGame, addPlayer, beginGame, changePhase } from './actions/gameActions';
+import { createGame, addPlayer, beginGame, changePhase, updateCards } from './actions/gameActions';
 import Game from './components/Game'
 
-
-function App({game, createGame, addPlayer, beginGame, changePhase}) {
+function App({game, createGame, addPlayer, beginGame, changePhase, updateCards}) {
   const [socket, setSocket] = useState();
   
   useEffect(() => {
@@ -15,27 +14,30 @@ function App({game, createGame, addPlayer, beginGame, changePhase}) {
     setSocket(socket)
 
     socket.on('game joined', ({gameName, playersJoined}) => {
-      console.log('players joined', playersJoined)
       createGame({name: gameName, playersJoined, player: playersJoined})
     });
+
+    socket.on('draw card taken', ({position}) => {
+      console.log(position)
+      const hand = document.querySelector(`[data-hand]=hand-${game.turn - 1}`)
+    })
 
     socket.on('game created', ({gameName, player}) => {
       createGame({name: gameName, playersJoined: 1, player})
     });
 
-    socket.on('begin game', ({deck, players, discards}) => {
-      beginGame({deck, players, discards})
+    socket.on('update cards', ({cards}) => {
+      updateCards({cards});
+    })
+
+    socket.on('begin game', ({cards, players}) => {
+      beginGame({cards, players})
     })
     
     socket.on('player joined', () => {
       console.log('got event')
       addPlayer();
     });
-
-    socket.on('flip draw card', () => {
-      changePhase({phase: "drawPileSelected", actions: 'flipDrawCard'});
-
-    })
 
   }, []);
 
@@ -53,4 +55,4 @@ const mapStateToProps = state => ({
   game: state.game
 })
 
-export default connect(mapStateToProps, {createGame, addPlayer, beginGame, changePhase})(App);
+export default connect(mapStateToProps, {createGame, addPlayer, beginGame, changePhase, updateCards})(App);

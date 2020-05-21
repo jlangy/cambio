@@ -22,7 +22,7 @@
   right: 0;
   left: 0;
   bottom: 0;
-  position: relative
+  position: absolute
 }
 
 .card-flip {
@@ -33,15 +33,11 @@
   position: absolute;
 }
 
-.card-container.flipped > .front, .card-container.card-flip > .front {
-  transform: rotateY(180deg);
+.card-container.flipped > .front{
+  transform: rotateY(180deg) !important;
 }
-.card-container.flipped > .back, .card-container.card-flip > .back {
-  transform: rotateY(0deg);
-}
-
-.card-container > .back {
-  transform: rotateY(-180deg);
+.card-container.flipped > .back{
+  transform: rotateY(0deg) !important;
 }
 
 .front, .back {
@@ -50,4 +46,12 @@
   transition: -webkit-transform ease 1000ms;
   transition: transform ease 1s;
   box-shadow: 2px 2px 2px rgba(0,0,0,0.5);
+}
+
+.back{
+  transform: rotateY(180deg) !important;
+}
+
+.front {
+  transform: rotateY(0deg) !important;
 }
