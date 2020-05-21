@@ -1,4 +1,4 @@
-import { NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, DISCARD_FROM_BOARD, UPDATE_CARDS } from '../actions/types';
+import { NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, DISCARD_FROM_BOARD, UPDATE_CARDS, CHANGE_TURN } from '../actions/types';
 
 const initialState = {};
 
@@ -24,6 +24,9 @@ export default function(state = initialState, action){
         const {cards} = action.payload;
         return {...state, cards}
       }
+    case CHANGE_TURN:
+      const newTurn = state.turn === state.totalPlayers ? 1 : state.turn + 1;
+      return {...state, gamePhase: "initialCardPick", turn: newTurn}
     default:
       return state;
   }

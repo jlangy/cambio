@@ -46,6 +46,10 @@ io.on('connection', socket => {
     socket.to(roomName).emit('draw card taken', {position});
   });
 
+  socket.on("change turn", ({roomName}) => {
+    socket.to(roomName).emit('change turn')
+  })
+
   socket.on('update cards', ({cards, roomName}) => {
     socket.to(roomName).emit('update cards', {cards});
   })

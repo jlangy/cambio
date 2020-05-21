@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {connect} from 'react-redux';
 import './card.css';
-import { changePhase, updateCards } from '../actions/gameActions'
+import { changePhase, updateCards, changeTurn } from '../actions/gameActions'
 
-function Card({game, card, changePhase, index, socket, updateCards}) {
+function Card({game, card, changePhase, index, socket, updateCards, changeTurn}) {
 
   function getTop(){
     //In a players hand
@@ -70,7 +70,7 @@ function Card({game, card, changePhase, index, socket, updateCards}) {
   }
 
   function getZIndex(){
-    const topDiscardIndex = game.cards[getTopDiscardCardIndex()].discard;
+    const topDiscardIndex = game.cards[getTopDiscardCardIndex()] && game.cards[getTopDiscardCardIndex()].discard;
     return card.discard === topDiscardIndex ? '1' : ''
   }
 
@@ -88,6 +88,52 @@ function Card({game, card, changePhase, index, socket, updateCards}) {
     return game.cards.findIndex(card => card.hand === hand && card.handPosition === position)
   }
 
+  function moveDrawCardToHand(hand, handPosition, cards){
+    const newCards = [...cards];
+    const drawCardIndex = getTopDrawCardIndex();
+    const newHandCard = {...game.cards[drawCardIndex], hand, handPosition, selected: false, draw: false}
+    newCards[drawCardIndex] = newHandCard;
+    return newCards
+  }
+
+  function moveHandCardToDiscard(hand, handPosition, cards){
+    const handCardIndex = getHandCardIndex(hand, handPosition);
+    const newCards = [...cards];
+    //don't increment discard index if swapping out a discard
+    const newDiscardIndex = (game.gamePhase === "discardCardSelected" ? game.cards[getTopDiscardCardIndex()].discard: game.cards[getTopDiscardCardIndex()].discard + 1)
+    const newDiscard = {...game.cards[handCardIndex], hand: false, handPosition: null, discard: newDiscardIndex}
+    newCards[handCardIndex] = newDiscard;
+    return newCards
+  }
+
+  function moveDiscardCardToHand(hand, handPosition, cards){
+    const newCards = [...cards];
+    const discardCardIndex = getTopDiscardCardIndex();
+    const newHandCard = {...game.cards[discardCardIndex], hand, handPosition, selected: false, discard: false}
+    newCards[discardCardIndex] = newHandCard;
+    return newCards;
+  }
+
+  function endTurn(newCards){
+    updateCards({cards: newCards})
+    socket.emit("update cards", {cards: newCards, roomName: game.name});
+    socket.emit("change turn", {roomName: game.name})
+    changeTurn();
+  }
+
+  function handleHandCardClick(){
+    //If own hand after selecting draw card
+    if (game.gamePhase === 'drawCardSelected' && card.hand + 1 === game.player){
+      let newCards = moveDrawCardToHand(card.hand, card.handPosition, game.cards);
+      newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
+      endTurn(newCards);
+    } else if(game.gamePhase === 'discardCardSelected' && card.hand + 1 === game.player){
+      let newCards = moveDiscardCardToHand(card.hand, card.handPosition, game.cards);
+      newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
+      endTurn(newCards)
+    }
+  }
+
   function handleDrawCardClick(){
     if(game.gamePhase === "initialCardPick"){
       const newCards = [...game.cards];
@@ -98,41 +144,19 @@ function Card({game, card, changePhase, index, socket, updateCards}) {
     }
   }
 
-  function moveDrawCardToHand(hand, handPosition, cards){
-    const newCards = [...cards];
-    const drawCardIndex = getTopDrawCardIndex();
-    const newHandCard = {...game.cards[drawCardIndex], hand, handPosition, selected: false}
-    newCards[drawCardIndex] = newHandCard;
-    return newCards
-  }
-
-  function moveHandCardToDiscard(hand, handPosition, cards){
-    const handCardIndex = getHandCardIndex(hand, handPosition);
-    const newCards = [...cards];
-    const newDiscardIndex = game.cards[getTopDiscardCardIndex()].discard + 1
-    const newDiscard = {...game.cards[handCardIndex], hand: false, handPosition: null, discard: newDiscardIndex}
-    newCards[handCardIndex] = newDiscard;
-    return newCards
-  }
-
-  function handleHandCardClick(){
-    //If own hand after selecting draw card
-    if (game.gamePhase === 'drawCardSelected' && card.hand + 1 === game.player){
-      let newCards = moveDrawCardToHand(card.hand, card.handPosition, game.cards);
-      newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
-      updateCards({cards: newCards})
-      socket.emit("update cards", {cards: newCards, roomName: game.name});
-    }
-  }
-
   function handleDiscardClick(){
     if(game.gamePhase === 'drawCardSelected'){
       const newDiscard = {...game.cards[getTopDrawCardIndex()], draw: false, discard: game.cards[getTopDiscardCardIndex()].discard + 1}
       const newCards = [...game.cards];
       newCards[getTopDrawCardIndex()] = newDiscard;
       //TODO: ADD SPECIAL POWERS HERE AND SLAPPING HERE
-      updateCards({cards: newCards})
-      changePhase({phase: "turn end"});
+      endTurn(newCards);
+    } else if(game.gamePhase === 'initialCardPick'){
+      const newCards = [...game.cards];
+      const discardCardIndex = getTopDiscardCardIndex();
+      newCards[discardCardIndex] = {...newCards[discardCardIndex], selected: true}
+      updateCards({cards: newCards});
+      changePhase({phase: 'discardCardSelected'});
     }
   }
 
@@ -168,4 +192,4 @@ const mapStateToProps = state => ({
   game: state.game
 })
 
-export default connect(mapStateToProps, {changePhase, updateCards})(Card);
+export default connect(mapStateToProps, {changePhase, updateCards, changeTurn})(Card);

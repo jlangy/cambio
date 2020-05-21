@@ -3,10 +3,10 @@ import io from "socket.io-client";
 import './App.css';
 import {connect} from 'react-redux';
 import Menu from './components/Menu';
-import { createGame, addPlayer, beginGame, changePhase, updateCards } from './actions/gameActions';
+import { createGame, addPlayer, beginGame, changePhase, updateCards, changeTurn } from './actions/gameActions';
 import Game from './components/Game'
 
-function App({game, createGame, addPlayer, beginGame, changePhase, updateCards}) {
+function App({game, createGame, addPlayer, beginGame, changePhase, updateCards, changeTurn}) {
   const [socket, setSocket] = useState();
   
   useEffect(() => {
@@ -28,6 +28,11 @@ function App({game, createGame, addPlayer, beginGame, changePhase, updateCards})
 
     socket.on('update cards', ({cards}) => {
       updateCards({cards});
+    })
+
+    socket.on('change turn', () => {
+      console.log('got change turn event in client')
+      changeTurn()
     })
 
     socket.on('begin game', ({cards, players}) => {
@@ -55,4 +60,4 @@ const mapStateToProps = state => ({
   game: state.game
 })
 
-export default connect(mapStateToProps, {createGame, addPlayer, beginGame, changePhase, updateCards})(App);
+export default connect(mapStateToProps, {createGame, addPlayer, beginGame, changePhase, updateCards, changeTurn})(App);
