@@ -1,4 +1,4 @@
-import { NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, DISCARD_FROM_BOARD, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT } from '../actions/types';
+import { NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, DISCARD_FROM_BOARD, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD } from '../actions/types';
 
 const initialState = {};
 
@@ -47,6 +47,8 @@ export default function(state = initialState, action){
         const {player} = action.payload;
         return {...state, slapTurn: player}
       }
+    case ADD_SWAP_CARD:
+        return {...state, swapCard: action.payload}
     default:
       return state;
   }

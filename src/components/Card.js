@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {connect} from 'react-redux';
 import './card.css';
-import { changePhase, updateCards, changeTurn, addSlapSlot } from '../actions/gameActions'
+import { changePhase, updateCards, changeTurn, addSlapSlot, addSwapCard } from '../actions/gameActions'
 
-function Card({game, card, changePhase, index, socket, updateCards, changeTurn, addSlapSlot}) {
+function Card({game, card, changePhase, index, socket, updateCards, changeTurn, addSlapSlot, addSwapCard}) {
 
   function getTop(){
     //In a players hand
@@ -65,6 +65,9 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn, 
     } 
     else if(card.selected && (game.gamePhase === 'drawCardSelected' || game.gamePhase === 'slapping' || game.gamePhase === 'slap selection'|| game.gamePhase === 'slap replacement')){
       return false
+    }
+    else if(card.flipped){
+      return false;
     }
     else {
       return true;
@@ -194,26 +197,123 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn, 
       socket.emit('change phase', {roomName: game.name, phase: 'drawCardSelected'})
       socket.emit('update cards', {cards: newCards, roomName: game.name})
     }
+    else if(game.gamePhase === 'peek' && card.hand + 1 === game.player){
+      const newCards = [...game.cards]
+      const cardIndex = getHandCardIndex(card.hand, card.handPosition)
+      newCards[cardIndex] = {...newCards[cardIndex], flipped: true}
+      updateCards({cards: newCards});
+      setTimeout(() => {
+        newCards[cardIndex] = {...newCards[cardIndex], flipped: false}
+        updateCards({cards: newCards});
+        socket.emit("change turn", {roomName: game.name})
+        changeTurn();
+      }, 2000);
+    } else if(game.gamePhase === 'spy' && card.hand + 1 !== game.player){
+      changePhase({phase: 'inactive'})
+      const newCards = [...game.cards]
+      const cardIndex = getHandCardIndex(card.hand, card.handPosition)
+      newCards[cardIndex] = {...newCards[cardIndex], flipped: true}
+      updateCards({cards: newCards});
+      setTimeout(() => {
+        newCards[cardIndex] = {...newCards[cardIndex], flipped: false}
+        updateCards({cards: newCards});
+        socket.emit("change turn", {roomName: game.name})
+        changeTurn();
+      }, 2000);
+    } else if (game.gamePhase === 'swap'){
+      if(!game.swapCard){
+        addSwapCard({hand: card.hand, handPosition: card.handPosition})
+      } else {
+        if(game.swapCard.hand === card.hand && game.swapCard.handPosition === card.handPosition){
+          return;
+        }
+        const newCards = [...game.cards];
+        const swapCardIndex = getHandCardIndex(game.swapCard.hand, game.swapCard.handPosition);
+        const currentCardIndex = getHandCardIndex(card.hand, card.handPosition);
+        newCards[swapCardIndex] = {...newCards[swapCardIndex], hand: card.hand, handPosition: card.handPosition}
+        newCards[currentCardIndex] = {...newCards[currentCardIndex], hand:game.swapCard.hand, handPosition: game.swapCard.handPosition}
+        updateCards({cards: newCards});
+        socket.emit('update cards', {cards: newCards, roomName: game.name})
+        socket.emit("change turn", {roomName: game.name})
+        changeTurn();
+      }
+    } else if(game.gamePhase === "spy and swap: peek" && card.hand + 1 === game.player){
+      const newCards = [...game.cards]
+      const cardIndex = getHandCardIndex(card.hand, card.handPosition)
+      newCards[cardIndex] = {...newCards[cardIndex], flipped: true}
+      updateCards({cards: newCards});
+      setTimeout(() => {
+        newCards[cardIndex] = {...newCards[cardIndex], flipped: false}
+        updateCards({cards: newCards});
+        changePhase({phase: "spy and swap: spy"});
+      }, 2000);
+    } else if(game.gamePhase === "spy and swap: spy" && card.hand + 1 !== game.player){
+      changePhase({phase: 'inactive'})
+      const newCards = [...game.cards]
+      const cardIndex = getHandCardIndex(card.hand, card.handPosition)
+      newCards[cardIndex] = {...newCards[cardIndex], flipped: true}
+      updateCards({cards: newCards});
+      setTimeout(() => {
+        newCards[cardIndex] = {...newCards[cardIndex], flipped: false}
+        updateCards({cards: newCards});
+        changePhase({phase: "spy and swap: swap"});
+      }, 2000);
+    } else if(game.gamePhase === "spy and swap: swap"){
+      if(!game.swapCard){
+        addSwapCard({hand: card.hand, handPosition: card.handPosition})
+      } else {
+        if(game.swapCard.hand === card.hand && game.swapCard.handPosition === card.handPosition){
+          return;
+        }
+        const newCards = [...game.cards];
+        const swapCardIndex = getHandCardIndex(game.swapCard.hand, game.swapCard.handPosition);
+        const currentCardIndex = getHandCardIndex(card.hand, card.handPosition);
+        newCards[swapCardIndex] = {...newCards[swapCardIndex], hand: card.hand, handPosition: card.handPosition}
+        newCards[currentCardIndex] = {...newCards[currentCardIndex], hand:game.swapCard.hand, handPosition: game.swapCard.handPosition}
+        updateCards({cards: newCards});
+        socket.emit('update cards', {cards: newCards, roomName: game.name})
+        socket.emit("change turn", {roomName: game.name})
+        changeTurn();
+      }
+    }
   }
 
   function handleDrawCardClick(){
     if(game.gamePhase === "initialCardPick"){
       socket.emit('slapping on', {roomName: game.name});
-      // const newCards = [...game.cards];
-      // const drawCardIndex = getTopDrawCardIndex();
-      // newCards[drawCardIndex] = {...newCards[drawCardIndex], selected: true}
-      // updateCards({cards: newCards});
-      // changePhase({phase: 'drawCardSelected'});
+    }
+  }
+
+  function evaluateAction(card){
+    const cardNumber = card.value.split('_')[1];
+    if(cardNumber === "7" || cardNumber == "8"){
+      changePhase({phase: 'peek'})
+      //PEEK
+    } else if(cardNumber === "9" || cardNumber == "10"){
+      changePhase({phase: 'spy'})
+      //SPY
+    } else if(cardNumber === "11" || cardNumber == "12"){
+      changePhase({phase: 'swap'})
+      //SWAP
+    } else if(card.value === "s_13" || card.value === "c_13"){
+      changePhase({phase: 'spy and swap: peek'})
+      //SPY AND SWAP
+    } else {
+      socket.emit("change turn", {roomName: game.name})
+      changeTurn();
     }
   }
 
   function handleDiscardClick(){
+
     if(game.gamePhase === 'drawCardSelected'){
       const newDiscard = {...game.cards[getTopDrawCardIndex()], draw: false, discard: game.cards[getTopDiscardCardIndex()].discard + 1, selected: false}
       const newCards = [...game.cards];
       newCards[getTopDrawCardIndex()] = newDiscard;
-      //TODO: ADD SPECIAL POWERS HERE AND SLAPPING HERE
-      endTurn(newCards);
+      updateCards({cards: newCards})
+      socket.emit("update cards", {cards: newCards, roomName: game.name});
+      evaluateAction(newDiscard);
+
     } else if(game.gamePhase === 'initialCardPick'){
       const newCards = [...game.cards];
       const discardCardIndex = getTopDiscardCardIndex();
@@ -260,4 +360,4 @@ const mapStateToProps = state => ({
   game: state.game
 })
 
-export default connect(mapStateToProps, {changePhase, updateCards, changeTurn, addSlapSlot})(Card);
+export default connect(mapStateToProps, {changePhase, updateCards, changeTurn, addSlapSlot, addSwapCard})(Card);
