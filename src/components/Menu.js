@@ -5,11 +5,11 @@ function Menu({socket}) {
   const [joinGameName, setJoinGameName] = useState('');
   
   function startGame(){
-    socket.emit('start game', {gameName})
+    socket.emit('start game', {roomName: gameName})
   }
 
   function joinGame(){
-    socket.emit('join game', {gameName: joinGameName})
+    socket.emit('join game', {roomName: joinGameName})
   }
 
   return (

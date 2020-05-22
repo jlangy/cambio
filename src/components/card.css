@@ -12,6 +12,8 @@
   background-color: white;
 }
 
+
+
 .card-container {
   height: var(--card-height);
   width: var(--card-width);
@@ -25,6 +27,10 @@
   position: absolute
 }
 
+.selected{
+  top: 65% !important;
+}
+
 .card-flip {
   top: 120px;
 }
@@ -33,10 +39,10 @@
   position: absolute;
 }
 
-.card-container.flipped > .front{
+.card-container.flipped > .front, .card-container.selected.front{
   transform: rotateY(180deg) !important;
 }
-.card-container.flipped > .back{
+.card-container.flipped > .back, .card-container.selected.back{
   transform: rotateY(0deg) !important;
 }
 
@@ -44,7 +50,7 @@
   backface-visibility: hidden;
   transform-style: preserve-3d;
   transition: -webkit-transform ease 1000ms;
-  transition: transform ease 1s;
+  transition: transform ease 1s 1s;
   box-shadow: 2px 2px 2px rgba(0,0,0,0.5);
 }
 

@@ -3,12 +3,18 @@ const express = require('express');
 const socket = require('socket.io');
 const port = process.env.PORT || 3000;
 const Deck = require('card-deck');
+// const cardsDeck = [
+//   'c_1','c_2','c_3','c_4','c_5','c_6','c_7','c_8','c_9','c_10','c_11','c_12','c_13',
+//   'd_1','d_2','d_3','d_4','d_5','d_6','d_7','d_8','d_9','d_10','d_11','d_12','d_13',
+//   'h_1','h_2','h_3','h_4','h_5','h_6','h_7','h_8','h_9','h_10','h_11','h_12','h_13',
+//   's_1','s_2','s_3','s_4','s_5','s_6','s_7','s_8','s_9','s_10','s_11','s_12','s_13',
+//   'j_0','j_0'
+// ]
 const cardsDeck = [
-  'c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11','c12','c13',
-  'd1','d2','d3','d4','d5','d6','d7','d8','d9','d10','d11','d12','d13',
-  'h1','h2','h3','h4','h5','h6','h7','h8','h9','h10','h11','h12','h13',
-  's1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13',
-  'j','j'
+  'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1',
+  'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1', 
+  'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1', 
+  'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1', 'c_1','c_1', 'c_1', 'c_1', 
 ]
 
 const app = express();
@@ -50,31 +56,59 @@ io.on('connection', socket => {
     socket.to(roomName).emit('change turn')
   })
 
+  socket.on("change phase", ({roomName, phase}) => {
+    socket.to(roomName).emit('change phase', {phase})
+  })
+
+  socket.on('slapping on', ({roomName}) => {
+    io.in(roomName).emit('slapping on')
+    rooms[roomName].slapping = true;
+  })
+
   socket.on('update cards', ({cards, roomName}) => {
     socket.to(roomName).emit('update cards', {cards});
   })
 
-  socket.on('start game', ({gameName}) => {
-    if(rooms[gameName]){
+  socket.on('not slapping', () => {
+    const roomName = Object.keys(io.sockets.adapter.sids[socket.id])[1];
+    if(!rooms[roomName].slapping){
+      return;
+    }
+    rooms[roomName].notSlapping = rooms[roomName].notSlapping ? rooms[roomName].notSlapping + 1 : 1;
+    console.log(rooms)
+    if(rooms[roomName].notSlapping === rooms[roomName].totalPlayers){
+      io.to(roomName).emit('no slap');
+      rooms[roomName].notSlapping = 0;
+    } 
+  })
+
+  socket.on('slap', ({roomName, player}) => {
+    console.log('backend slap', roomName, player)
+    rooms[roomName].slapping = false;
+    io.to(roomName).emit('slapped', {player})
+  })
+
+  socket.on('start game', ({roomName}) => {
+    if(rooms[roomName]){
       socket.emit('room name taken')
     } else {
-      rooms[gameName] = {totalPlayers: 2, playersJoined: 1}
-      socket.join(gameName);
-      socket.emit('game created', {gameName, player: 1})
+      rooms[roomName] = {totalPlayers: 2, playersJoined: 1}
+      socket.join(roomName);
+      socket.emit('game created', {roomName, player: 1})
     }
   })
 
-  socket.on('join game', ({gameName}) => {
-    const room = rooms[gameName];
+  socket.on('join game', ({roomName}) => {
+    const room = rooms[roomName];
     if(!room){
       socket.emit('room DNE')
     } else {
       room.playersJoined += 1;
-      socket.join(gameName)
-      socket.emit('game joined', {gameName, playersJoined: room.playersJoined})
-      socket.to(gameName).emit('player joined')
+      socket.join(roomName)
+      socket.emit('game joined', {roomName, playersJoined: room.playersJoined})
+      socket.to(roomName).emit('player joined')
       if(room.playersJoined === room.totalPlayers){
-        startGame(gameName);
+        startGame(roomName);
       }
     }
   })

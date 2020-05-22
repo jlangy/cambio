@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {connect} from 'react-redux';
 import './card.css';
-import { changePhase, updateCards, changeTurn } from '../actions/gameActions'
+import { changePhase, updateCards, changeTurn, addSlapSlot } from '../actions/gameActions'
 
-function Card({game, card, changePhase, index, socket, updateCards, changeTurn}) {
+function Card({game, card, changePhase, index, socket, updateCards, changeTurn, addSlapSlot}) {
 
   function getTop(){
     //In a players hand
@@ -62,12 +62,15 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn})
   function getFlipped(){
     if(card.discard || card.discard === 0){
       return false;
-    } if(card.selected && game.gamePhase === 'drawCardSelected'){
+    } 
+    else if(card.selected && (game.gamePhase === 'drawCardSelected' || game.gamePhase === 'slapping' || game.gamePhase === 'slap selection'|| game.gamePhase === 'slap replacement')){
       return false
-    } else {
+    }
+    else {
       return true;
     }
   }
+
 
   function getZIndex(){
     const topDiscardIndex = game.cards[getTopDiscardCardIndex()] && game.cards[getTopDiscardCardIndex()].discard;
@@ -77,6 +80,11 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn})
   function getTopDrawCardIndex(){
     const numDrawCards = game.cards.filter(card => card.draw || card.draw === 0).length
     return game.cards.findIndex(card => card.draw === numDrawCards - 1)
+  }
+
+  function getSecondTopDrawCardIndex(){
+    const numDrawCards = game.cards.filter(card => card.draw || card.draw === 0).length
+    return game.cards.findIndex(card => card.draw === numDrawCards - 2)
   }
 
   function getTopDiscardCardIndex(){
@@ -94,6 +102,24 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn})
     const newHandCard = {...game.cards[drawCardIndex], hand, handPosition, selected: false, draw: false}
     newCards[drawCardIndex] = newHandCard;
     return newCards
+  }
+
+  function moveSecondDrawCardToHand(hand, handPosition, cards){
+    const newCards = [...cards];
+    const secondDrawCardIndex = getSecondTopDrawCardIndex();
+    const newDrawCardIndex = getTopDrawCardIndex();
+    const newHandCard = {...game.cards[secondDrawCardIndex], hand, handPosition, selected: false, draw: false}
+    newCards[secondDrawCardIndex] = newHandCard;
+    newCards[newDrawCardIndex] = {...newCards[newDrawCardIndex], draw: newCards[newDrawCardIndex].draw - 1}
+    return newCards
+  }
+
+  function moveHandCardToHand(movingCardHand, movingCardHandPosition, moveToHand, moveToHandPosition, cards){
+    const newCards = [...cards];
+    const newHandCardIndex = getHandCardIndex(movingCardHand, movingCardHandPosition);
+    const newHandCard = {...cards[newHandCardIndex], hand: moveToHand, handPosition: moveToHandPosition}
+    newCards[newHandCardIndex] = newHandCard;
+    return newCards;
   }
 
   function moveHandCardToDiscard(hand, handPosition, cards){
@@ -121,6 +147,10 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn})
     changeTurn();
   }
 
+  function getTotalCardsInHand(hand, cards){
+    return cards.filter(card => card.hand === hand).length
+  }
+
   function handleHandCardClick(){
     //If own hand after selecting draw card
     if (game.gamePhase === 'drawCardSelected' && card.hand + 1 === game.player){
@@ -131,22 +161,55 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn})
       let newCards = moveDiscardCardToHand(card.hand, card.handPosition, game.cards);
       newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
       endTurn(newCards)
+    } else if(game.gamePhase === "slap selection" && game.slapTurn === game.player){
+      
+      const cardNumber = card.value.split('_')[1];
+      const drawNumber = game.cards[getTopDrawCardIndex()].value.split('_')[1];
+
+      if(cardNumber === drawNumber){
+        const newCards = moveHandCardToDiscard(card.hand, card.handPosition, game.cards);
+        updateCards({cards: newCards})
+        
+        if(card.hand + 1 !== game.slapTurn){
+          changePhase({phase: 'slap replacement'});
+          addSlapSlot({hand: card.hand, handPosition: card.handPosition});
+        } else {
+          changePhase({phase: 'drawCardSelected'})
+          socket.emit('change phase', {roomName: game.room, phase: 'drawCardSelected'})
+        }
+      } else {
+        //bad guess
+        const handPosition = getTotalCardsInHand(game.slapTurn - 1, game.cards);
+        const newCards = moveSecondDrawCardToHand(game.slapTurn - 1, handPosition, game.cards);
+        updateCards({cards: newCards});
+        socket.emit('update cards', {cards: newCards, roomName: game.name});
+        changePhase({phase: 'drawCardSelected'})
+        socket.emit('change phase', {roomName: game.name, phase: 'drawCardSelected'})
+      }
+    }
+    else if(game.gamePhase === 'slap replacement' && card.hand + 1 === game.slapTurn){
+      const newCards = moveHandCardToHand(card.hand, card.handPosition, game.slapSlot.hand, game.slapSlot.handPosition, game.cards);
+      updateCards({cards: newCards});
+      changePhase({phase: 'drawCardSelected'});
+      socket.emit('change phase', {roomName: game.name, phase: 'drawCardSelected'})
+      socket.emit('update cards', {cards: newCards, roomName: game.name})
     }
   }
 
   function handleDrawCardClick(){
     if(game.gamePhase === "initialCardPick"){
-      const newCards = [...game.cards];
-      const drawCardIndex = getTopDrawCardIndex();
-      newCards[drawCardIndex] = {...newCards[drawCardIndex], selected: true}
-      updateCards({cards: newCards});
-      changePhase({phase: 'drawCardSelected'});
+      socket.emit('slapping on', {roomName: game.name});
+      // const newCards = [...game.cards];
+      // const drawCardIndex = getTopDrawCardIndex();
+      // newCards[drawCardIndex] = {...newCards[drawCardIndex], selected: true}
+      // updateCards({cards: newCards});
+      // changePhase({phase: 'drawCardSelected'});
     }
   }
 
   function handleDiscardClick(){
     if(game.gamePhase === 'drawCardSelected'){
-      const newDiscard = {...game.cards[getTopDrawCardIndex()], draw: false, discard: game.cards[getTopDiscardCardIndex()].discard + 1}
+      const newDiscard = {...game.cards[getTopDrawCardIndex()], draw: false, discard: game.cards[getTopDiscardCardIndex()].discard + 1, selected: false}
       const newCards = [...game.cards];
       newCards[getTopDrawCardIndex()] = newDiscard;
       //TODO: ADD SPECIAL POWERS HERE AND SLAPPING HERE
@@ -162,7 +225,12 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn})
 
   function handleClick(){
     if(game.player !== game.turn){
-      return console.log('not yo turn bud')
+      //Check if during slapping phase, i.e only out of turn play allowed
+      if(game.slapTurn === game.player && game.gamePhase === "slap selection" && (card.hand || card.hand === 0)){
+        return handleHandCardClick()
+      } else {
+        return console.log('not yo turn bud')
+      }
     }
     //Clicking on draw pile
     if(card.draw || card.draw === 0){
@@ -181,7 +249,7 @@ function Card({game, card, changePhase, index, socket, updateCards, changeTurn})
 
   return (
     // <div className={`card-container ${flipped ? 'flipped' : ''} ${(index === game.deck._stack.length-1 && game.actions === "flipDrawCard") ? 'card-flip' : ''}`} onClick={onClick} data-position={position}>
-    <div className={`card-container ${getFlipped() ? 'flipped' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex()}} onClick={handleClick}>
+    <div className={`card-container ${getFlipped() ? 'flipped' : ''} ${card.selected ? 'selected' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex()}} onClick={handleClick}>
       <div className="front">{card.value}</div>
       <div className="back"></div>
     </div>
@@ -192,4 +260,4 @@ const mapStateToProps = state => ({
   game: state.game
 })
 
-export default connect(mapStateToProps, {changePhase, updateCards, changeTurn})(Card);
+export default connect(mapStateToProps, {changePhase, updateCards, changeTurn, addSlapSlot})(Card);
