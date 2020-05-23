@@ -3,12 +3,12 @@ import io from "socket.io-client";
 import './App.css';
 import {connect} from 'react-redux';
 import Menu from './components/Menu';
-import { createGame, addPlayer, beginGame, changePhase, updateCards, changeTurn, selectDrawCard, addSlapTurn } from './actions/gameActions';
 import Game from './components/Game'
+import { CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND } from './actions/types';
 
 
 
-function App({game, createGame, addPlayer, beginGame, changePhase, updateCards, changeTurn, selectDrawCard, addSlapTurn}) {
+function App({game, dispatch}) {
   const [savedSocket, setSavedSocket] = useState();
   const [slapCounter, setSlapCounter] = useState(false);
   const keypressListener = useRef(null);
@@ -30,7 +30,7 @@ function App({game, createGame, addPlayer, beginGame, changePhase, updateCards, 
       socket = savedSocket;
     } else {
       console.log('making a socket')
-      socket = io.connect('localhost:3000');
+      socket = io.connect(window.location.hostname)
       setSavedSocket(socket);
     }
 
@@ -38,8 +38,12 @@ function App({game, createGame, addPlayer, beginGame, changePhase, updateCards, 
     console.log('useeffect ran')
 
     socket.on('game joined', ({roomName, playersJoined}) => {
-      createGame({name: roomName, playersJoined, player: playersJoined})
+      dispatch({type: NEW_GAME, name: roomName, playersJoined, player: playersJoined})
     });
+
+    socket.on('cabo turn end', () => {
+      dispatch({type: CABO_TURN_END})
+    })
 
     socket.on('draw card taken', ({position}) => {
       console.log(position)
@@ -47,26 +51,34 @@ function App({game, createGame, addPlayer, beginGame, changePhase, updateCards, 
     })
 
     socket.on('game created', ({roomName, player}) => {
-      createGame({name: roomName, playersJoined: 1, player})
+      dispatch({type: NEW_GAME, name: roomName, playersJoined: 1, player})
     });
 
     socket.on('update cards', ({cards}) => {
-      updateCards({cards});
+      dispatch({type: UPDATE_CARDS, cards});
     })
 
     socket.on('change turn', () => {
       console.log('got change turn event in client')
-      changeTurn()
+      dispatch({type: CHANGE_TURN})
     })
 
     socket.on('begin game', ({cards, players}) => {
       console.log('hi')
-      beginGame({cards, players})
+      dispatch({type: BEGIN_GAME, cards, players})
+    })
+
+    socket.on('cabo', () => {
+      dispatch({type: CABO})
+    })
+
+    socket.on('end round', () => {
+      dispatch({type: END_ROUND})
     })
 
     socket.on('slapping on', () => {
       setSlapCounter(true);
-      selectDrawCard();
+      dispatch({type: SELECT_DRAW_CARD});
       document.addEventListener('keydown', handleKeyPress)
       keypressListener.current = handleKeyPress
       setTimeout(() => {
@@ -78,25 +90,25 @@ function App({game, createGame, addPlayer, beginGame, changePhase, updateCards, 
     socket.on('no slap', () => {
       setSlapCounter(false)
       console.log('aint noone slapppin')
-      changePhase({phase: 'drawCardSelected'})
+      dispatch({type: CHANGE_PHASE, phase: 'drawCardSelected'})
       //change to appropriate game phase
     })
     //DO EVERYTHING IN REDUCER< MAKE LIFE EASY
     
     socket.on('player joined', () => {
       console.log('got event')
-      addPlayer();
+      dispatch({type: ADD_PLAYER});
     });
 
     socket.on('change phase', ({phase}) => {
-      changePhase({phase})
+      dispatch({type: CHANGE_PHASE, phase})
     })
 
     socket.on('slapped', ({player}) => {
       console.log(`${player} just slapped`)
       setSlapCounter(false);
-      changePhase({phase: 'slap selection'})
-      addSlapTurn({player})
+      dispatch({type: CHANGE_PHASE, phase: 'slap selection'})
+      dispatch({type: ADD_SLAP_TURN, player})
       document.removeEventListener('keydown', keypressListener.current)
     });
 
@@ -106,7 +118,7 @@ function App({game, createGame, addPlayer, beginGame, changePhase, updateCards, 
     <div>
       <h2>Cambio</h2>
       {slapCounter && <h1 style={{position: 'absolute'}}>HI THIS IS TH SLAP COUNTER</h1>}
-      <button onClick={() => beginGame({deck: {_stack: ['a1','a2']}, discards: ['a1','a2'], players: [{hand: ['c1','c2','c3','c4']}, {hand: ['a1','a2','a3','a4']}]})}>start game test</button>
+      <button onClick={() => dispatch({type: BEGIN_GAME, deck: {_stack: ['a1','a2']}, discards: ['a1','a2'], players: [{hand: ['c1','c2','c3','c4']}, {hand: ['a1','a2','a3','a4']}]})}>start game test</button>
       {!game.playing &&  <Menu socket={savedSocket}/>}
       {game.playing && <Game socket={savedSocket}/>}
     </div>
@@ -117,4 +129,4 @@ const mapStateToProps = state => ({
   game: state.game
 })
 
-export default connect(mapStateToProps, {createGame, addPlayer, beginGame, changePhase, updateCards, changeTurn, selectDrawCard, addSlapTurn})(App);
+export default connect(mapStateToProps)(App);

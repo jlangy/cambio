@@ -1,4 +1,4 @@
-import { NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, DISCARD_FROM_BOARD, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD } from '../actions/types';
+import { END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO } from '../actions/types';
 
 const initialState = {};
 
@@ -10,28 +10,28 @@ function getTopDrawCardIndex(state){
 export default function(state = initialState, action){
   switch(action.type){
     case NEW_GAME:
-      const {name, playersJoined, player} = action.payload;
+      const {name, playersJoined, player} = action;
       return {name, totalPlayers: 2, playersJoined, player}
     case ADD_PLAYER:
       return {...state, playersJoined: state.playersJoined + 1};
     case BEGIN_GAME:
       {
-        const {players, cards} = action.payload;
+        const {players, cards} = action;
         return {...state, playing: true, cards, players, turn: 1, gamePhase: 'initialCardPick'}
       }
     case CHANGE_PHASE:
       {
-        const { phase } = action.payload;
+        const { phase } = action;
         return {...state, gamePhase: phase}
       }
     case UPDATE_CARDS:
       {
-        const {cards} = action.payload;
+        const {cards} = action;
         return {...state, cards}
       }
     case ADD_SLAP_SLOT:
       {
-        const {hand, handPosition} = action.payload;
+        const {hand, handPosition} = action;
         return {...state, slapSlot: {hand, handPosition}}
       }
     case CHANGE_TURN:
@@ -44,11 +44,17 @@ export default function(state = initialState, action){
       return {...state, cards: newCards, gamePhase: 'slapping'}
     case ADD_SLAP_TURN:
       {
-        const {player} = action.payload;
+        const {player} = action;
         return {...state, slapTurn: player}
       }
     case ADD_SWAP_CARD:
-        return {...state, swapCard: action.payload}
+        return {...state, swapCard: action}
+    case CABO:
+      return {...state, cabo: true, turnsRemaining: state.totalPlayers}
+    case CABO_TURN_END:
+      return {...state, turnsRemaining: state.turnsRemaining - 1}
+    case END_ROUND:
+      return {...state, roundOver: true}
     default:
       return state;
   }

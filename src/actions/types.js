@@ -9,3 +9,6 @@ export const SELECT_DRAW_CARD = "SELECT_DRAW_CARD";
 export const ADD_SLAP_TURN = "ADD_SLAP_TURN";
 export const ADD_SLAP_SLOT = "ADD_SLAP_SLOT";
 export const ADD_SWAP_CARD = "ADD_SWAP_CARD";
+export const CABO = "CABO";
+export const CABO_TURN_END = "CABO_TURN_END";
+export const END_ROUND = "END_ROUND";
