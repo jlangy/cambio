@@ -12,3 +12,5 @@ export const ADD_SWAP_CARD = "ADD_SWAP_CARD";
 export const CABO = "CABO";
 export const CABO_TURN_END = "CABO_TURN_END";
 export const END_ROUND = "END_ROUND";
+export const ADD_PEEKED = "ADD_PEEKED";
+export const REMOVE_SWAP_CARD = "REMOVE_SWAP_CARD";

@@ -1,4 +1,4 @@
-import { END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO } from '../actions/types';
+import { REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO } from '../actions/types';
 
 const initialState = {};
 
@@ -17,7 +17,7 @@ export default function(state = initialState, action){
     case BEGIN_GAME:
       {
         const {players, cards} = action;
-        return {...state, playing: true, cards, players, turn: 1, gamePhase: 'initialCardPick'}
+        return {...state, playing: true, cards, players, turn: 1, gamePhase: 'peeking', peeked: 0}
       }
     case CHANGE_PHASE:
       {
@@ -55,6 +55,13 @@ export default function(state = initialState, action){
       return {...state, turnsRemaining: state.turnsRemaining - 1}
     case END_ROUND:
       return {...state, roundOver: true}
+    case ADD_PEEKED: 
+      {
+        const {hand, handPosition} = action.peeked;
+        return {...state, peeked: state.peeked + 1, peekedCard: {hand, handPosition}}
+      }
+    case REMOVE_SWAP_CARD:
+      return {...state, swapCard: null}
     default:
       return state;
   }

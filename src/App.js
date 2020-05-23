@@ -30,7 +30,8 @@ function App({game, dispatch}) {
       socket = savedSocket;
     } else {
       console.log('making a socket')
-      socket = io.connect(window.location.hostname)
+      // socket = io.connect(window.location.hostname)
+      socket = io.connect('localhost:3000');
       setSavedSocket(socket);
     }
 
@@ -63,8 +64,11 @@ function App({game, dispatch}) {
       dispatch({type: CHANGE_TURN})
     })
 
+    socket.on('peeking over', () => {
+      dispatch({type: CHANGE_PHASE, phase: 'initialCardPick'})
+    })
+
     socket.on('begin game', ({cards, players}) => {
-      console.log('hi')
       dispatch({type: BEGIN_GAME, cards, players})
     })
 
@@ -84,7 +88,7 @@ function App({game, dispatch}) {
       setTimeout(() => {
         document.removeEventListener('keydown', handleKeyPress)
         socket.emit('not slapping')
-      }, 1000);
+      }, 3000);
     })
 
     socket.on('no slap', () => {

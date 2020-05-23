@@ -4,6 +4,13 @@ const socket = require('socket.io');
 const path = require('path');
 const port = process.env.PORT || 3000;
 const Deck = require('card-deck');
+// const cardsDeck = [
+//   'c_11','c_11','c_11','c_11','c_5','c_6','c_7','c_8','c_9','c_10','c_11','c_12','c_13',
+//   'd_11','d_11','d_11','d_11','d_5','d_6','d_7','d_8','d_9','d_10','d_11','d_12','d_13',
+//   'h_11','h_11','h_11','h_11','h_5','h_6','h_7','h_8','h_9','h_10','h_11','h_12','h_13',
+//   's_11','s_11','s_11','s_11','s_5','s_6','s_7','s_8','s_9','s_10','s_11','s_12','s_13',
+//   'j_0','j_0'
+// ]
 const cardsDeck = [
   'c_1','c_2','c_3','c_4','c_5','c_6','c_7','c_8','c_9','c_10','c_11','c_12','c_13',
   'd_1','d_2','d_3','d_4','d_5','d_6','d_7','d_8','d_9','d_10','d_11','d_12','d_13',
@@ -47,6 +54,13 @@ io.on('connection', socket => {
 
   socket.on('take draw card', ({position, roomName}) => {
     socket.to(roomName).emit('draw card taken', {position});
+  });
+
+  socket.on('finished peeking', ({roomName}) => {
+    rooms[roomName].finishedPeeking += 1;
+    if(rooms[roomName].finishedPeeking === rooms[roomName].totalPlayers){
+      io.in(roomName).emit('peeking over')
+    }
   });
 
   socket.on("change turn", ({roomName}) => {
@@ -101,7 +115,7 @@ io.on('connection', socket => {
     if(rooms[roomName]){
       socket.emit('room name taken')
     } else {
-      rooms[roomName] = {totalPlayers: 2, playersJoined: 1}
+      rooms[roomName] = {totalPlayers: 2, playersJoined: 1, finishedPeeking: 0}
       socket.join(roomName);
       socket.emit('game created', {roomName, player: 1})
     }
@@ -121,10 +135,6 @@ io.on('connection', socket => {
       }
     }
   })
-});
-
-app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 app.get('*', (req, res) => {
