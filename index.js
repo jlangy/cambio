@@ -20,10 +20,6 @@ let rooms = {};
 
 app.use(express.static(path.join(__dirname, 'build')));
 
-const app = express();
-const server = app.listen(port, () => console.log(`listening on port ${port}`));
-const io = socket(server);
-
 const rooms = {};
 
 function startGame(gameName){
