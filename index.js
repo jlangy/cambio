@@ -20,8 +20,6 @@ let rooms = {};
 
 app.use(express.static(path.join(__dirname, 'build')));
 
-const rooms = {};
-
 function startGame(gameName){
   let room = rooms[gameName]
   let deck = new Deck(cardsDeck);
