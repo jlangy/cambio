@@ -19,7 +19,7 @@
   width: var(--card-width);
   transform-style: preserve-3d;
   perspective: 1000px;
-  transition: all 1s;
+  transition: top 1s, bottom 1s, right 1s, left 1s, transform 1s;
   top: 0;
   right: 0;
   left: 0;

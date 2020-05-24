@@ -119,7 +119,11 @@ io.on('connection', socket => {
       socket.join(roomName);
       socket.emit('game created', {roomName, player: 1})
     }
-  })
+  });
+
+  socket.on('highlight', cardInfo => {
+    socket.to(cardInfo.roomName).emit('highlight', cardInfo)
+  });
 
   socket.on('join game', ({roomName}) => {
     const room = rooms[roomName];

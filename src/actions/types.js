@@ -14,3 +14,5 @@ export const CABO_TURN_END = "CABO_TURN_END";
 export const END_ROUND = "END_ROUND";
 export const ADD_PEEKED = "ADD_PEEKED";
 export const REMOVE_SWAP_CARD = "REMOVE_SWAP_CARD";
+export const HIGHLIGHT = "HIGHLIGHT";
+export const CLEAR_HIGHLIGHT = "CLEAR_HIGHLIGHT";

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {connect} from 'react-redux';
 import './card.css';
 import { REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD } from '../actions/types';
+import { changePhase } from '../actions/gameActions';
 
 
 function Card({game, card, socket, dispatch}) {
@@ -66,6 +67,18 @@ function Card({game, card, socket, dispatch}) {
     }
     if((card.hand === (game.player + 2) % game.totalPlayers)){
       return 'rotate(-90deg)';
+    }
+  }
+
+  function getHighlight(){
+    if(card.highlight === false){
+      return '3px solid red'
+    } else
+    if(card.highlight === true){
+      console.log('got into this part')
+      return '3px solid green'
+    } else {
+      return ''
     }
   }
 
@@ -192,17 +205,17 @@ function Card({game, card, socket, dispatch}) {
   }
 
   function changeTurn(){
-    socket.emit("change turn", {roomName: game.name})
-    dispatch({type: CHANGE_TURN});
-    checkRoundEnd();
+    setTimeout(() => {
+      socket.emit("change turn", {roomName: game.name})
+      dispatch({type: CHANGE_TURN});
+      checkRoundEnd();
+    }, 1000);
   }
 
   function flipCard(hand, handPosition){
     const newCards = [...game.cards]
     const cardIndex = getHandCardIndex(hand, handPosition)
-    console.log('flipcard', newCards[cardIndex], !newCards[cardIndex].flipped)
     newCards[cardIndex] = {...newCards[cardIndex], flipped: !newCards[cardIndex].flipped}
-    console.log(newCards[cardIndex])
     dispatch({type: UPDATE_CARDS, cards: newCards});
   }
 
@@ -213,7 +226,7 @@ function Card({game, card, socket, dispatch}) {
 
   function updatePhase(phase, emit){
     dispatch({type: CHANGE_PHASE, phase})
-    emit && socket.emit('change phase', {roomName: game.name, phase: 'drawCardSelected'})
+    emit && socket.emit('change phase', {roomName: game.name, phase})
   }
 
   function handleHandCardClick(){
@@ -261,18 +274,20 @@ function Card({game, card, socket, dispatch}) {
           const cardNumber = card.value.split('_')[1];
           const drawNumber = game.cards[getTopDrawCardIndex()].value.split('_')[1];
           if(cardNumber === drawNumber){
+            // socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
             const newCards = moveHandCardToDiscard(card.hand, card.handPosition, game.cards);
             updateCards(newCards);
             
             //If another players card selected, save the slot location and change phase for player to replace it
             if(card.hand + 1 !== game.slapTurn){
-              updatePhase('slap replacement');
+              updatePhase('slap replacement', true);
               dispatch({type: ADD_SLAP_SLOT, hand: card.hand, handPosition: card.handPosition});
             } else {
               updatePhase('drawCardSelected', true);
             }
           } else {
             //Player Guessed incorrectly. Gets an extra draw card as penalty
+            // socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
             const handPosition = getTotalCardsInHand(game.slapTurn - 1, game.cards);
             const newCards = moveSecondDrawCardToHand(game.slapTurn - 1, handPosition, game.cards);
             updateCards(newCards, true);
@@ -296,7 +311,8 @@ function Card({game, card, socket, dispatch}) {
         if(!activePlayersHand()){
           return console.log('peek phase, can only see own hand');
         }
-        dispatch({type: CHANGE_PHASE, phase: 'inactive'})
+        updatePhase('inactive', true);
+        socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
         flipCard(card.hand, card.handPosition);
         setTimeout(() => {
           //game state stale from pre-flip, just re-use it to flip back
@@ -309,7 +325,8 @@ function Card({game, card, socket, dispatch}) {
         if(activePlayersHand()){
           return console.log('spy phase, have to click on different players hand')
         }
-        dispatch({type: CHANGE_PHASE, phase: 'inactive'})
+        updatePhase('inactive', true);
+        socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
         flipCard(card.hand, card.handPosition);
         setTimeout(() => {
           updateCards(game.cards)
@@ -320,6 +337,7 @@ function Card({game, card, socket, dispatch}) {
       case 'swap':
         {
           if(!game.swapCard){
+            socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
             return dispatch({type: ADD_SWAP_CARD, hand: card.hand, handPosition: card.handPosition})
           } 
           //Ignore click if same as first card
@@ -337,7 +355,8 @@ function Card({game, card, socket, dispatch}) {
         if(!activePlayersHand()){
           return console.log('have to peek at own hand');
         }
-        dispatch({type: CHANGE_PHASE, phase: 'inactive'})
+        updatePhase('inactive', true);
+        socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
         flipCard(card.hand, card.handPosition)
         setTimeout(() => {
           updateCards(game.cards)
@@ -349,7 +368,8 @@ function Card({game, card, socket, dispatch}) {
         if(activePlayersHand()){
           return console.log('have to peek at opponents hand');
         }
-        dispatch({type: CHANGE_PHASE, phase: 'inactive'})
+        socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
+        updatePhase('inactive', true);
         flipCard(card.hand, card.handPosition)
         setTimeout(() => {
           updateCards(game.cards);
@@ -359,6 +379,7 @@ function Card({game, card, socket, dispatch}) {
 
       case 'spy and swap: swap':
         if(!game.swapCard){
+          socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
           dispatch({type: ADD_SWAP_CARD, hand: card.hand, handPosition: card.handPosition})
         } else {
           if(game.swapCard.hand === card.hand && game.swapCard.handPosition === card.handPosition){
@@ -385,16 +406,16 @@ function Card({game, card, socket, dispatch}) {
   function evaluateAction(card){
     const cardNumber = card.value.split('_')[1];
     if(cardNumber === "7" || cardNumber == "8"){
-      dispatch({type: CHANGE_PHASE, phase: 'peek'})
+      updatePhase('peek', true)
       //PEEK
     } else if(cardNumber === "9" || cardNumber == "10"){
-      dispatch({type: CHANGE_PHASE, phase: 'spy'})
+      updatePhase('spy', true)
       //SPY
     } else if(cardNumber === "11" || cardNumber == "12"){
-      dispatch({type: CHANGE_PHASE, phase: 'swap'})
+      updatePhase('swap', true)
       //SWAP
     } else if(card.value === "s_13" || card.value === "c_13"){
-      dispatch({type: CHANGE_PHASE, phase: 'spy and swap: peek'})
+      updatePhase('spy and swap: peek', true)
       //SPY AND SWAP
     } else {
       socket.emit("change turn", {roomName: game.name})
@@ -409,7 +430,7 @@ function Card({game, card, socket, dispatch}) {
       const newDiscard = {...game.cards[getTopDrawCardIndex()], draw: false, discard: game.cards[getTopDiscardCardIndex()].discard + 1, selected: false}
       const newCards = [...game.cards];
       newCards[getTopDrawCardIndex()] = newDiscard;
-      dispatch({type: UPDATE_CARDS, cards: newCards})
+      dispatch({type: UPDATE_CARDS, cards: newCards});
       socket.emit("update cards", {cards: newCards, roomName: game.name});
       evaluateAction(newDiscard);
 
@@ -448,8 +469,7 @@ function Card({game, card, socket, dispatch}) {
   }
 
   return (
-    // <div className={`card-container ${flipped ? 'flipped' : ''} ${(index === game.deck._stack.length-1 && game.actions === "flipDrawCard") ? 'card-flip' : ''}`} onClick={onClick} data-position={position}>
-    <div className={`card-container ${getFlipped() ? 'flipped' : ''} ${card.selected ? 'selected' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex()}} onClick={handleClick}>
+    <div className={`card-container ${getFlipped() ? 'flipped' : ''} ${card.selected ? 'selected' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex(), border: getHighlight()}} onClick={handleClick}>
       <div className={`front ${card.flipped ? 'peek' : ''}`}>{card.value}</div>
       <div className={`back ${card.flipped ? 'peek' : ''}`}></div>
     </div>

@@ -4,7 +4,7 @@ import './App.css';
 import {connect} from 'react-redux';
 import Menu from './components/Menu';
 import Game from './components/Game'
-import { CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND } from './actions/types';
+import { CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT } from './actions/types';
 
 
 
@@ -13,9 +13,16 @@ function App({game, dispatch}) {
   const [slapCounter, setSlapCounter] = useState(false);
   const keypressListener = useRef(null);
 
-  function getTopDrawCardIndex(){
-    const numDrawCards = game.cards.filter(card => card.draw || card.draw === 0).length
-    return game.cards.findIndex(card => card.draw === numDrawCards - 1)
+  function getHandCardIndex(hand, position){
+    return game.cards.findIndex(card => card.hand === hand && card.handPosition === position)
+  }
+
+  function highlightCard(hand, handPosition, success){
+    const newCards = [...game.cards];
+    const cardIndex = getHandCardIndex(hand, handPosition);
+    console.log('trying to highlight')
+    newCards[cardIndex] = {...newCards[cardIndex], highlight: success};
+    return newCards;
   }
   
   function handleKeyPress(event){
@@ -24,14 +31,15 @@ function App({game, dispatch}) {
     }
   }
 
+
   useEffect(() => {
     let socket;
     if(savedSocket){
       socket = savedSocket;
     } else {
       console.log('making a socket')
-      socket = io.connect(window.location.hostname)
-      // socket = io.connect('localhost:3000');
+      // socket = io.connect(window.location.hostname)
+      socket = io.connect('localhost:3000');
       setSavedSocket(socket);
     }
 
@@ -41,6 +49,12 @@ function App({game, dispatch}) {
     socket.on('game joined', ({roomName, playersJoined}) => {
       dispatch({type: NEW_GAME, name: roomName, playersJoined, player: playersJoined})
     });
+
+
+  socket.on('highlight', ({hand, handPosition, success}) => {
+    const newCards = highlightCard(hand, handPosition, success);
+    dispatch({type: UPDATE_CARDS, cards: newCards})
+  })
 
     socket.on('cabo turn end', () => {
       dispatch({type: CABO_TURN_END})
@@ -62,6 +76,7 @@ function App({game, dispatch}) {
     socket.on('change turn', () => {
       console.log('got change turn event in client')
       dispatch({type: CHANGE_TURN})
+      dispatch({type: CLEAR_HIGHLIGHT})
     })
 
     socket.on('peeking over', () => {

@@ -1,4 +1,4 @@
-import { REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO } from '../actions/types';
+import { REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, HIGHLIGHT, CLEAR_HIGHLIGHT } from '../actions/types';
 
 const initialState = {};
 
@@ -62,6 +62,11 @@ export default function(state = initialState, action){
       }
     case REMOVE_SWAP_CARD:
       return {...state, swapCard: null}
+    case CLEAR_HIGHLIGHT:
+      {
+        const newCards = state.cards.map(card => ({...card, highlight: null}))
+        return {...state, cards: newCards}
+      }
     default:
       return state;
   }
