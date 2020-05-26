@@ -6,7 +6,7 @@ import Menu from './components/Menu';
 import Game from './components/Game';
 import InfoPanel from './components/InfoPanel';
 
-import { TEST_GAME, CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT } from './actions/types';
+import { CLEAR, CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT, NEW_ROUND } from './actions/types';
 
 
 
@@ -50,25 +50,23 @@ function App({game, dispatch}) {
     }
 
     socket.off();
-    console.log('useeffect ran')
 
     socket.on('game joined', ({roomName, playersJoined}) => {
       dispatch({type: NEW_GAME, name: roomName, playersJoined, player: playersJoined})
     });
 
 
-  socket.on('highlight', ({hand, handPosition, success}) => {
-    const newCards = highlightCard(hand, handPosition, success);
-    dispatch({type: UPDATE_CARDS, cards: newCards})
-  })
+    socket.on('highlight', ({hand, handPosition, success}) => {
+      const newCards = highlightCard(hand, handPosition, success);
+      dispatch({type: UPDATE_CARDS, cards: newCards})
+    })
+
+    socket.on('player disconnection', () => {
+      console.log('player disconnection')
+    })
 
     socket.on('cabo turn end', () => {
       dispatch({type: CABO_TURN_END})
-    })
-
-    socket.on('draw card taken', ({position}) => {
-      console.log(position)
-      const hand = document.querySelector(`[data-hand]=hand-${game.turn - 1}`)
     })
 
     socket.on('game created', ({roomName, player}) => {
@@ -118,10 +116,8 @@ function App({game, dispatch}) {
       dispatch({type: CHANGE_PHASE, phase: 'drawCardSelected'})
       //change to appropriate game phase
     })
-    //DO EVERYTHING IN REDUCER< MAKE LIFE EASY
     
     socket.on('player joined', () => {
-      console.log('got event')
       dispatch({type: ADD_PLAYER});
     });
 
@@ -137,28 +133,17 @@ function App({game, dispatch}) {
       document.removeEventListener('keydown', keypressListener.current)
     });
 
-  }, [game, savedSocket, handleKeyPress]);
+    socket.on('new round', ({cards}) => {
+      dispatch({type: CLEAR});
+      setTimeout(() => {
+        dispatch({type: NEW_ROUND, cards})
+      }, 1000);
+    })
 
-  function getScores(){
-    const playerScores = [];
-    for(let i = 0; i < game.totalPlayers; i++){
-      if(game.cards){
-        const playerScore = game.cards.filter(card => card.hand === i).reduce((total,card) => {
-          let cardValue = Number(card.value.split('_')[1]);
-          if(cardValue > 10){
-            cardValue = 10;
-          }
-          return total + cardValue;
-        }, 0);
-        playerScores.push(playerScore);
-      }
-    }
-    return playerScores;
-  }
+  }, [game, savedSocket, handleKeyPress]);
 
   return (
     <div className='container'>
-      {game.roundOver &&  <h3>Scores: {getScores().map(score => <h4>score: {score}</h4>)}</h3>}
       {!game.playing &&  <Menu socket={savedSocket}/>}
       {game.playing && 
         <div className='game-panel-container'>

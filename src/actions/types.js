@@ -17,3 +17,6 @@ export const REMOVE_SWAP_CARD = "REMOVE_SWAP_CARD";
 export const HIGHLIGHT = "HIGHLIGHT";
 export const CLEAR_HIGHLIGHT = "CLEAR_HIGHLIGHT";
 export const TEST_GAME = "TEST_GAME";
+export const UPDATE_SCORES = "UPDATE_SCORES";
+export const NEW_ROUND = "NEW_ROUND";
+export const CLEAR = "CLEAR";

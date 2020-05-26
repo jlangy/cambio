@@ -4,7 +4,7 @@
   position: relative;
   height: 100%;
   width: 100%;
-  animation: moveLeft 5s linear forwards;
+  animation: moveLeft 5000ms linear forwards;
   background: rgb(255, 0, 0);
 }
 

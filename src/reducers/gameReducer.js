@@ -1,6 +1,8 @@
-import { TEST_GAME, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, HIGHLIGHT, CLEAR_HIGHLIGHT } from '../actions/types';
+import { CLEAR, NEW_ROUND, TEST_GAME, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, CLEAR_HIGHLIGHT } from '../actions/types';
 
 const initialState = {};
+
+const MAX_SCORE = 100;
 
 function getTopDrawCardIndex(state){
   const numDrawCards = state.cards.filter(card => card.draw || card.draw === 0).length
@@ -9,6 +11,14 @@ function getTopDrawCardIndex(state){
 
 export default function(state = initialState, action){
   switch(action.type){
+    case CLEAR:
+      return {...state, cards: []}
+
+    case NEW_ROUND:
+      {
+        const {cards} = action;
+        return {...state, cabo: false, turnsRemaining: null, roundOver: false, peeked: 0, cards, gamePhase: 'peeking', round: state.round + 1, turn: (state.round + 1) % (state.totalPlayers) || state.totalPlayers}
+      }
     case TEST_GAME:
       return {
         name: 'test',
@@ -45,8 +55,12 @@ export default function(state = initialState, action){
       return {...state, playersJoined: state.playersJoined + 1};
     case BEGIN_GAME:
       {
-        const {players, cards} = action;
-        return {...state, playing: true, cards, players, turn: 1, gamePhase: 'peeking', peeked: 0}
+        const {cards} = action;
+        const players = [];
+        for(let i = 0; i < state.totalPlayers; i++){
+          players.push({player: i+ 1, score: 0})
+        }
+        return {...state, playing: true, cards, turn: 1, players, gamePhase: 'peeking', peeked: 0, round: 1}
       }
     case CHANGE_PHASE:
       {
@@ -78,12 +92,30 @@ export default function(state = initialState, action){
       }
     case ADD_SWAP_CARD:
         return {...state, swapCard: action}
+    
     case CABO:
       return {...state, cabo: state.turn, turnsRemaining: state.totalPlayers}
+    
     case CABO_TURN_END:
       return {...state, turnsRemaining: state.turnsRemaining - 1}
+    
     case END_ROUND:
-      return {...state, roundOver: true}
+      const newPlayers = state.players.map((player,i) => {
+        const playerScore = state.cards.filter(card => card.hand === i).reduce((total,card) => {
+          let cardValue = Number(card.value.split('_')[1]);
+          if(cardValue > 10){
+            cardValue = 10;
+          }
+          return total + cardValue;
+        }, 0);
+        return {...player, score: player.score + playerScore}
+      })
+      if(newPlayers.some(player => player.score > MAX_SCORE)){
+        return {...state, roundOver: true, gameOver: true, players: newPlayers}
+      } else {
+        return {...state, roundOver: true, players: newPlayers}
+      }
+
     case ADD_PEEKED: 
       {
         const {hand, handPosition} = action.peeked;

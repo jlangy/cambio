@@ -3,13 +3,12 @@ import './infoPanel.css';
 import { connect } from 'react-redux';
 import { CABO } from '../actions/types';
 import ProgressBar from './ProgressBar';
-import Game from './Game';
 
 
 function InfoPanel({game, dispatch, socket, slapCounter}) {
   
   function handleCabo(){
-    if(game.turn === game.player && game.gamePhase === "initialCardPick"){
+    if(game.turn === game.player && game.gamePhase === "initialCardPick" && !game.cabo){
       dispatch({type: CABO})
       socket.emit('cabo', {roomName: game.name})
     }
@@ -89,8 +88,8 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
     <div className="info-panel-container">
       <div id='player-name'>Player: {game.player}</div>
       <div className="message-container">
-        <div id="turn-number">Player {game.turn}'s turn</div>
-        <div id="slap-container" className={game.gamePhase === 'slapping' && 'slapping-bar-highlight'}>
+        <div className="panel-section-title">Player {game.turn}'s turn</div>
+        <div id="slap-container" className={game.gamePhase === 'slapping' ? 'slapping-bar-highlight' : ''}>
           <em>Slapping</em>:
           <div className="bar-container">
             {slapCounter && <ProgressBar /> } 
@@ -98,9 +97,13 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
         </div>
         <p id="phase-message">{gamePhaseMessage()}</p>
         <p id="message">{gameMessage()}</p>
+      </div>  
+      <div>
+        <h3 className='panel-section-title'>Scores</h3> 
+        {game.players.map(({player, score}, i) => <p key={i} className='score-item'>{`Player ${player}: ${score}`}</p>)}
       </div>
       <div id="cambio-btn-container">
-        <button id="cambio-btn" onClick={handleCabo} disabled={game.player !== game.turn}>CAMBIO!</button>
+        <button id="cambio-btn" onClick={handleCabo} disabled={game.player !== game.turn || game.gamePhase !== 'initialCardPick' || game.cabo}>CAMBIO!</button>
       </div>
 
     </div>

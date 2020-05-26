@@ -35,12 +35,15 @@ let rooms = {};
 app.use(express.static(path.join(__dirname, 'build')));
 
 function startGame(gameName){
-  let room = rooms[gameName]
+  const cards = setUpDeck(rooms[gameName].totalPlayers);
+  io.in(gameName).emit('begin game', {cards});
+}
+
+function setUpDeck(totalPlayers){
   let deck = new Deck(cardsDeck);
   deck.shuffle();
   let cards = [];
-  room.players = [];
-  for(let i = 0; i < room.totalPlayers; i++){
+  for(let i = 0; i < totalPlayers; i++){
     const hand = deck.draw(4);
     hand.forEach((card,j) => {
       cards.push({hand: i, handPosition: j, value: card})
@@ -53,7 +56,7 @@ function startGame(gameName){
       cards.push({draw: i - 1, value: card})
     }
   })
-  io.in(gameName).emit('begin game', {cards, players: room.players});
+  return cards;
 }
 
 io.on('connection', socket => {
@@ -67,15 +70,25 @@ io.on('connection', socket => {
     rooms[roomName].finishedPeeking += 1;
     if(rooms[roomName].finishedPeeking === rooms[roomName].totalPlayers){
       io.in(roomName).emit('peeking over')
+      rooms[roomName].finishedPeeking = 0;
     }
   });
+
+  socket.on('disconnecting', () => {
+    const roomName = Object.keys(io.sockets.adapter.sids[socket.id])[1];
+    delete rooms[roomName];-
+    io.in(roomName).emit('player disconnection'); 
+  })
 
   socket.on("change turn", ({roomName}) => {
     socket.to(roomName).emit('change turn')
   })
 
   socket.on('end round', ({roomName}) => {
-    socket.to(roomName).emit('end round')
+    socket.to(roomName).emit('end round');
+    setTimeout(() => {
+      io.in(roomName).emit('new round', {cards: setUpDeck(rooms[roomName].totalPlayers)});
+    }, 5000);
   })
 
   socket.on("change phase", ({roomName, phase}) => {

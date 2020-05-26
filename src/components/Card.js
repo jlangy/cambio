@@ -70,13 +70,13 @@ function Card({game, card, socket, dispatch}) {
     if(card.hand || card.hand === 0){
       switch (card.hand){
         case game.player - 1 % game.totalPlayers:
-          return '87.4%';
+          return '85.4%';
         case (game.player - 1 + 1) % game.totalPlayers: 
-          return `${2 + card.handPosition * 8}%`;
+          return `${8 + card.handPosition * 8}%`;
         case (game.player - 1 + 2) % game.totalPlayers:
-          return `0%`;
+          return `6%`;
         case (game.player - 1 + 3) % game.totalPlayers:
-          return `${2 + card.handPosition * 8}%`;
+          return `${8 + card.handPosition * 8}%`;
         default:
           console.log('error in getTop switch statement', card.hand + 1);
       }
@@ -91,13 +91,13 @@ function Card({game, card, socket, dispatch}) {
     if(card.hand || card.hand === 0){
       switch (card.hand){
         case game.player - 1 % game.totalPlayers:
-          return `${2 + card.handPosition * 8}%`;
+          return `${8 + card.handPosition * 8}%`;
         case (game.player - 1 + 1) % game.totalPlayers: 
-          return `2%`;
+          return `6%`;
         case (game.player - 1 + 2) % game.totalPlayers:
-          return `${2 + card.handPosition * 8}%`;
+          return `${8 + card.handPosition * 8}%`;
         case (game.player - 1 + 3) % game.totalPlayers:
-          return '98%';
+          return '94%';
         default:
           console.log('error in getTop switch statement');
       }
