@@ -1,15 +1,18 @@
 :root {
-  --card-height: 100px;
-  --card-width: 50px;
+  --card-height: 10.6%;
+  --card-width: 6.9%;
 }
 
 .front, .back {
-  height: var(--card-height);
-  width: var(--card-width);
+  /* height: var(--card-height);
+  width: var(--card-width); */
+  height: 100%;
+  width: 100%;
   border: 1px solid black;
   position: absolute;
   top: 0;
   background-color: white;
+  background-size: cover;
 }
 
 
@@ -28,18 +31,8 @@
 }
 
 .selected{
-  top: 65% !important;
+  top: 55% !important;
 }
-
-.card-flip {
-  top: 120px;
-}
-
-.deck-container>.card-container{
-  position: absolute;
-}
-
-
 
 .card-container.flipped > .front, .card-container.selected.front{
   transform: rotateY(180deg) !important;

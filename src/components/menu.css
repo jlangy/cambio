@@ -1,0 +1,9 @@
+.menu-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-row {
+  margin: 20px;
+  text-align: center;
+}

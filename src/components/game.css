@@ -1,8 +1,19 @@
 .game-container {
-  width: 80vh;
-  height: 80vh;
-  margin: 5vh;
+  width: 100vh;
+  height: 100vh;
+  box-sizing: border-box;
   border: 1px solid black;
-  position: absolute;
+  position: relative;
+  background-color: rgb(12, 110, 12);
 }
 
+.title {
+  color: white;
+  font-size: 3em;
+  font-family: Pacifico;
+  position: relative;
+  left: 40%;
+  top: 40%;
+  transform: rotate(-4deg);
+  width: 200px;
+}

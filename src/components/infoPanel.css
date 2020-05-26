@@ -1,0 +1,72 @@
+.info-panel-container{
+  width: 300px;
+  border: 1px solid black;
+  border-right: 0px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background-color: #454955;
+}
+
+#cambio-btn-container{
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
+
+#cambio-btn {
+  border: 1px solid black;
+  margin: 20px;
+  font-size: var(--large-font);
+  background-color: rgb(33, 167, 0);
+  color: white;
+}
+
+.slapping-bar-highlight {
+  background-color: white;
+}
+
+.bar-container {
+  width: 100%;
+  box-sizing: border-box;
+  height: 20px;
+  border: 2px solid gold;
+  overflow: hidden;
+}
+
+#player-name {
+  font-size: var(--large-font);
+  text-align: center;
+  margin: 20px;
+  border-bottom: 1px solid black;
+}
+
+#slap-container {
+  /* width: 90%;
+  margin: auto; */
+  margin-top: 10px;
+}
+
+#turn-number {
+  font-size: var(--medium-font);
+  text-align: center;
+  margin: 0px; 
+  border-bottom: 1px solid black;
+}
+
+.message-container {
+  border: 3px solid black;
+  margin: 20px;
+  padding: 20px;
+}
+
+#phase-message {
+  font-size: var(--small-font);
+  margin-bottom: 0;
+}
+
+#message {
+  margin-top: 0;
+}

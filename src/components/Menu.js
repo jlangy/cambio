@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './menu.css';
 
 function Menu({socket}) {
   const [gameName, setGameName] = useState('');
@@ -14,10 +15,14 @@ function Menu({socket}) {
 
   return (
     <div className="menu-container">
-      <input type="text" id="game-name" onChange={e => setGameName(e.target.value)}/>
-      <button onClick={startGame}>Start game</button>
-      <input type="text" id="game-name" onChange={e => setJoinGameName(e.target.value)}/>
-      <button onClick={joinGame}>Join game</button>
+      <div className="input-row">
+        <input type="text" id="game-name" onChange={e => setGameName(e.target.value)} placeholder="Name of game to create"/>
+        <button onClick={startGame}>Start game</button>
+      </div>
+      <div className="input-row">
+        <input type="text" id="game-name" onChange={e => setJoinGameName(e.target.value)} placeholder="Name of game to join"/>
+        <button onClick={joinGame}>Join game</button>
+      </div>
     </div>
   )
 }

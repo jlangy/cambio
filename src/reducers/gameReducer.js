@@ -1,4 +1,4 @@
-import { REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, HIGHLIGHT, CLEAR_HIGHLIGHT } from '../actions/types';
+import { TEST_GAME, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, HIGHLIGHT, CLEAR_HIGHLIGHT } from '../actions/types';
 
 const initialState = {};
 
@@ -9,6 +9,35 @@ function getTopDrawCardIndex(state){
 
 export default function(state = initialState, action){
   switch(action.type){
+    case TEST_GAME:
+      return {
+        name: 'test',
+        gamePhase: 'peeking', 
+        totalPlayers: 2,
+        playersJoined: 2,
+        player: 1,
+        turn: 1,
+        playing: true,
+        cards: [
+          {hand: 0, handPosition: 0, value: 'd_1'},
+          {hand: 0, handPosition: 1, value: 'd_1'},
+          {hand: 0, handPosition: 2, value: 'd_1'},
+          {hand: 0, handPosition: 3, value: 'd_1'},
+          {hand: 1, handPosition: 0, value: 'd_1'},
+          {hand: 1, handPosition: 1, value: 'd_1'},
+          {hand: 1, handPosition: 2, value: 'd_1'},
+          {hand: 1, handPosition: 3, value: 'd_1'},
+          {discard: 0, value: 'd_1'},
+          {draw: 0, value: 'd_1'},
+          {draw: 2, value: 'd_1'},
+          {draw: 3, value: 'd_1'},
+          {draw: 4, value: 'd_1'},
+          {draw: 5, value: 'd_1'},
+          {draw: 6, value: 'd_1'},
+          {draw: 7, value: 'd_1'},
+          {draw: 8, value: 'd_1'},
+        ]
+      }
     case NEW_GAME:
       const {name, playersJoined, player} = action;
       return {name, totalPlayers: 2, playersJoined, player}
@@ -50,7 +79,7 @@ export default function(state = initialState, action){
     case ADD_SWAP_CARD:
         return {...state, swapCard: action}
     case CABO:
-      return {...state, cabo: true, turnsRemaining: state.totalPlayers}
+      return {...state, cabo: state.turn, turnsRemaining: state.totalPlayers}
     case CABO_TURN_END:
       return {...state, turnsRemaining: state.turnsRemaining - 1}
     case END_ROUND:

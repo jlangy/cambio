@@ -16,3 +16,4 @@ export const ADD_PEEKED = "ADD_PEEKED";
 export const REMOVE_SWAP_CARD = "REMOVE_SWAP_CARD";
 export const HIGHLIGHT = "HIGHLIGHT";
 export const CLEAR_HIGHLIGHT = "CLEAR_HIGHLIGHT";
+export const TEST_GAME = "TEST_GAME";

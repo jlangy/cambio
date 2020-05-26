@@ -3,8 +3,10 @@ import io from "socket.io-client";
 import './App.css';
 import {connect} from 'react-redux';
 import Menu from './components/Menu';
-import Game from './components/Game'
-import { CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT } from './actions/types';
+import Game from './components/Game';
+import InfoPanel from './components/InfoPanel';
+
+import { TEST_GAME, CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT } from './actions/types';
 
 
 
@@ -12,6 +14,10 @@ function App({game, dispatch}) {
   const [savedSocket, setSavedSocket] = useState();
   const [slapCounter, setSlapCounter] = useState(false);
   const keypressListener = useRef(null);
+
+  // useEffect(() => {
+  //   dispatch({type: TEST_GAME})
+  // }, [])
 
   function getHandCardIndex(hand, position){
     return game.cards.findIndex(card => card.hand === hand && card.handPosition === position)
@@ -77,23 +83,23 @@ function App({game, dispatch}) {
       console.log('got change turn event in client')
       dispatch({type: CHANGE_TURN})
       dispatch({type: CLEAR_HIGHLIGHT})
-    })
+    });
 
     socket.on('peeking over', () => {
       dispatch({type: CHANGE_PHASE, phase: 'initialCardPick'})
-    })
+    });
 
     socket.on('begin game', ({cards, players}) => {
       dispatch({type: BEGIN_GAME, cards, players})
-    })
+    });
 
     socket.on('cabo', () => {
       dispatch({type: CABO})
-    })
+    });
 
     socket.on('end round', () => {
       dispatch({type: END_ROUND})
-    })
+    });
 
     socket.on('slapping on', () => {
       setSlapCounter(true);
@@ -103,8 +109,8 @@ function App({game, dispatch}) {
       setTimeout(() => {
         document.removeEventListener('keydown', handleKeyPress)
         socket.emit('not slapping')
-      }, 3000);
-    })
+      }, 5000);
+    });
 
     socket.on('no slap', () => {
       setSlapCounter(false)
@@ -133,13 +139,33 @@ function App({game, dispatch}) {
 
   }, [game, savedSocket, handleKeyPress]);
 
+  function getScores(){
+    const playerScores = [];
+    for(let i = 0; i < game.totalPlayers; i++){
+      if(game.cards){
+        const playerScore = game.cards.filter(card => card.hand === i).reduce((total,card) => {
+          let cardValue = Number(card.value.split('_')[1]);
+          if(cardValue > 10){
+            cardValue = 10;
+          }
+          return total + cardValue;
+        }, 0);
+        playerScores.push(playerScore);
+      }
+    }
+    return playerScores;
+  }
+
   return (
-    <div>
-      <h2>Cambio</h2>
-      {slapCounter && <h1 style={{position: 'absolute'}}>HI THIS IS TH SLAP COUNTER</h1>}
-      <button onClick={() => dispatch({type: BEGIN_GAME, deck: {_stack: ['a1','a2']}, discards: ['a1','a2'], players: [{hand: ['c1','c2','c3','c4']}, {hand: ['a1','a2','a3','a4']}]})}>start game test</button>
+    <div className='container'>
+      {game.roundOver &&  <h3>Scores: {getScores().map(score => <h4>score: {score}</h4>)}</h3>}
       {!game.playing &&  <Menu socket={savedSocket}/>}
-      {game.playing && <Game socket={savedSocket}/>}
+      {game.playing && 
+        <div className='game-panel-container'>
+          <InfoPanel socket={savedSocket} slapCounter={slapCounter}/>
+          <Game socket={savedSocket}/>
+        </div>
+      }
     </div>
   );
 }

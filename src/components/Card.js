@@ -1,29 +1,87 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {connect} from 'react-redux';
 import './card.css';
 import { REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD } from '../actions/types';
-import { changePhase } from '../actions/gameActions';
 
+const cardToImg = {
+  'c_1' : 'AC.png',
+  'c_2' : '2C.png',
+  'c_3' : '3C.png',
+  'c_4' : '4C.png',
+  'c_5' : '5C.png',
+  'c_6' : '6C.png',
+  'c_7' : '7C.png',
+  'c_8' : '8C.png',
+  'c_9' : '9C.png',
+  'c_10' : '10C.png',
+  'c_11' : 'JC.png',
+  'c_12' : 'QC.png',
+  'c_13' : 'KC.png',
+  'd_1' : 'AD.png',
+  'd_2' : '2D.png',
+  'd_3' : '3D.png',
+  'd_4' : '4D.png',
+  'd_5' : '5D.png',
+  'd_6' : '6D.png',
+  'd_7' : '7D.png',
+  'd_8' : '8D.png',
+  'd_9' : '9D.png',
+  'd_10' : '10D.png',
+  'd_11' : 'JD.png',
+  'd_12' : 'QD.png',
+  'd_13' : 'KD.png',
+  'h_1' : 'AH.png',
+  'h_2' : '2H.png',
+  'h_3' : '3H.png',
+  'h_4' : '4H.png',
+  'h_5' : '5H.png',
+  'h_6' : '6H.png',
+  'h_7' : '7H.png',
+  'h_8' : '8H.png',
+  'h_9' : '9H.png',
+  'h_10' : '10H.png',
+  'h_11' : 'JH.png',
+  'h_12' : 'QH.png',
+  'h_13' : 'KH.png',
+  's_1' : 'AS.png',
+  's_2' : '2S.png',
+  's_3' : '3S.png',
+  's_4' : '4S.png',
+  's_5' : '5S.png',
+  's_6' : '6S.png',
+  's_7' : '7S.png',
+  's_8' : '8S.png',
+  's_9' : '9S.png',
+  's_10' : '10S.png',
+  's_11' : 'JS.png',
+  's_12' : 'QS.png',
+  's_13' : 'KS.png',
+  'j_0' : 'joker.jpg'
+}
 
 function Card({game, card, socket, dispatch}) {
+
+  function getImage(){
+    return `url(/img/${cardToImg[card.value]})`;
+  }
 
   function getTop(){
     //In a players hand
     if(card.hand || card.hand === 0){
       switch (card.hand){
         case game.player - 1 % game.totalPlayers:
-          return '85%';
+          return '87.4%';
         case (game.player - 1 + 1) % game.totalPlayers: 
-          return `${25 + card.handPosition * 10}%`;
+          return `${2 + card.handPosition * 8}%`;
         case (game.player - 1 + 2) % game.totalPlayers:
           return `0%`;
         case (game.player - 1 + 3) % game.totalPlayers:
-          return `${25 + card.handPosition * 10}%`;
+          return `${2 + card.handPosition * 8}%`;
         default:
           console.log('error in getTop switch statement', card.hand + 1);
       }
-    } else if(card.discard || card.discard == 0 || card.draw || card.draw == 0){
-      return '50%';
+    } else if(card.discard || card.discard === 0 || card.draw || card.draw === 0){
+      return '35%';
     } else {
       console.log('error in get top, card has no placement', card)
     }
@@ -33,18 +91,18 @@ function Card({game, card, socket, dispatch}) {
     if(card.hand || card.hand === 0){
       switch (card.hand){
         case game.player - 1 % game.totalPlayers:
-          return `${25 + card.handPosition * 10}%`;
+          return `${2 + card.handPosition * 8}%`;
         case (game.player - 1 + 1) % game.totalPlayers: 
-          return `40px`;
+          return `2%`;
         case (game.player - 1 + 2) % game.totalPlayers:
-          return `${25 + card.handPosition * 10}%`;
+          return `${2 + card.handPosition * 8}%`;
         case (game.player - 1 + 3) % game.totalPlayers:
-          return '100%';
+          return '98%';
         default:
           console.log('error in getTop switch statement');
       }
     } else if (card.discard || card.discard === 0){
-      return '25%';
+      return '40%';
     } else if(card.draw || card.draw === 0){
       return "50%";
     } else {
@@ -76,9 +134,9 @@ function Card({game, card, socket, dispatch}) {
     } else
     if(card.highlight === true){
       console.log('got into this part')
-      return '3px solid green'
+      return '3px solid rgb(0,255,0)'
     } else {
-      return ''
+      return '1px solid black'
     }
   }
 
@@ -193,7 +251,7 @@ function Card({game, card, socket, dispatch}) {
   const activeSlappersHand = () => card.hand + 1 === game.slapTurn;
 
   function endTurn(newCards){
-    dispatch({type: UPDATE_CARDS, type: UPDATE_CARDS, cards: newCards})
+    dispatch({type: UPDATE_CARDS, cards: newCards})
     socket.emit("update cards", {cards: newCards, roomName: game.name});
     socket.emit("change turn", {roomName: game.name})
     checkRoundEnd();
@@ -250,6 +308,7 @@ function Card({game, card, socket, dispatch}) {
         break;
       
       case 'drawCardSelected':
+        if(card.hand + 1 === game.player)
         {
           let newCards = moveDrawCardToHand(card.hand, card.handPosition, game.cards);
           newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
@@ -258,6 +317,7 @@ function Card({game, card, socket, dispatch}) {
         }
 
       case 'discardCardSelected':
+        if(card.hand + 1 === game.player)
         {
           let newCards = moveDiscardCardToHand(card.hand, card.handPosition, game.cards);
           newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
@@ -405,13 +465,13 @@ function Card({game, card, socket, dispatch}) {
 
   function evaluateAction(card){
     const cardNumber = card.value.split('_')[1];
-    if(cardNumber === "7" || cardNumber == "8"){
+    if(cardNumber === "7" || cardNumber === "8"){
       updatePhase('peek', true)
       //PEEK
-    } else if(cardNumber === "9" || cardNumber == "10"){
+    } else if(cardNumber === "9" || cardNumber === "10"){
       updatePhase('spy', true)
       //SPY
-    } else if(cardNumber === "11" || cardNumber == "12"){
+    } else if(cardNumber === "11" || cardNumber === "12"){
       updatePhase('swap', true)
       //SWAP
     } else if(card.value === "s_13" || card.value === "c_13"){
@@ -446,7 +506,7 @@ function Card({game, card, socket, dispatch}) {
   function handleClick(){
     if(game.player !== game.turn){
       //Check if during slapping phase, i.e only out of turn play allowed
-      if(game.slapTurn === game.player && game.gamePhase === "slap selection" && (card.hand || card.hand === 0)){
+      if(game.slapTurn === game.player && (game.gamePhase === "slap selection" || game.gamePhase === "slap replacement") && (card.hand || card.hand === 0)){
         return handleHandCardClick()
       } else if(game.gamePhase === 'peeking' && (card.hand || card.hand === 0)){
         return handleHandCardClick();
@@ -469,9 +529,9 @@ function Card({game, card, socket, dispatch}) {
   }
 
   return (
-    <div className={`card-container ${getFlipped() ? 'flipped' : ''} ${card.selected ? 'selected' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex(), border: getHighlight()}} onClick={handleClick}>
-      <div className={`front ${card.flipped ? 'peek' : ''}`}>{card.value}</div>
-      <div className={`back ${card.flipped ? 'peek' : ''}`}></div>
+    <div className={`card-container ${getFlipped() ? 'flipped' : ''} ${card.selected ? 'selected' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex()}} onClick={handleClick}>
+      <div className={`front ${card.flipped ? 'peek' : ''}`} style={{border: getHighlight(), backgroundImage: getImage()}}></div>
+      <div className={`back ${card.flipped ? 'peek' : ''}`} style={{border: getHighlight(), backgroundImage: 'url(/img/red_back.png)'}}></div>
     </div>
   )
 }
