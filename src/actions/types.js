@@ -20,3 +20,4 @@ export const TEST_GAME = "TEST_GAME";
 export const UPDATE_SCORES = "UPDATE_SCORES";
 export const NEW_ROUND = "NEW_ROUND";
 export const CLEAR = "CLEAR";
+export const CHANGE_NAME = "CHANGE_NAME";

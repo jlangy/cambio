@@ -1,4 +1,4 @@
-import { CLEAR, NEW_ROUND, TEST_GAME, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, CLEAR_HIGHLIGHT } from '../actions/types';
+import { CLEAR, NEW_ROUND, TEST_GAME, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, CLEAR_HIGHLIGHT, CHANGE_NAME } from '../actions/types';
 
 const initialState = {};
 
@@ -13,7 +13,13 @@ export default function(state = initialState, action){
   switch(action.type){
     case CLEAR:
       return {...state, cards: []}
-
+    case CHANGE_NAME:
+      {
+        const {name, player} = action;
+        const newPlayers = [...state.players];
+        newPlayers[player - 1] = {...newPlayers[player - 1], player: name}
+        return {...state, players: newPlayers}
+      }
     case NEW_ROUND:
       {
         const {cards} = action;
@@ -23,10 +29,16 @@ export default function(state = initialState, action){
       return {
         name: 'test',
         gamePhase: 'peeking', 
-        totalPlayers: 2,
-        playersJoined: 2,
+        totalPlayers: 4,
+        playersJoined: 4,
         player: 1,
         turn: 1,
+        players: [
+          {player: 1, score: 0},
+          {player: 2, score: 0},
+          {player: 3, score: 0},
+          {player: 4, score: 0}
+        ],
         playing: true,
         cards: [
           {hand: 0, handPosition: 0, value: 'd_1'},
@@ -37,6 +49,14 @@ export default function(state = initialState, action){
           {hand: 1, handPosition: 1, value: 'd_1'},
           {hand: 1, handPosition: 2, value: 'd_1'},
           {hand: 1, handPosition: 3, value: 'd_1'},
+          {hand: 2, handPosition: 0, value: 'd_1'},
+          {hand: 2, handPosition: 1, value: 'd_1'},
+          {hand: 2, handPosition: 2, value: 'd_1'},
+          {hand: 2, handPosition: 3, value: 'd_1'},
+          {hand: 3, handPosition: 0, value: 'd_1'},
+          {hand: 3, handPosition: 1, value: 'd_1'},
+          {hand: 3, handPosition: 2, value: 'd_1'},
+          {hand: 3, handPosition: 3, value: 'd_1'},
           {discard: 0, value: 'd_1'},
           {draw: 0, value: 'd_1'},
           {draw: 2, value: 'd_1'},

@@ -1,12 +1,16 @@
 .info-panel-container{
   width: 300px;
-  border: 1px solid black;
-  border-right: 0px;
+  border: 10px solid rgb(59, 32, 0);
   height: 100%;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background-color: #454955;
+  background-color: #813400;
+  color: rgb(29, 13, 3);
+  background-image: url('/img/retina-wood.png');
+  padding: 20px;
+  box-shadow: inset 5px 10px 15px #752f006b, 
+            inset -5px -10px 15px #813400;
 }
 
 #cambio-btn-container{
@@ -16,55 +20,114 @@
   justify-content: flex-end;
 }
 
+.gamephase-msg {
+  height: 4em;
+}
+
+
+.panel-item {
+  margin-top: 20px;
+}
+.panel-title {
+  font-family: Satisfy;
+  font-size: var(--medium-font);
+  padding-right: 10px;
+  margin: 0;
+  display: inline-block;
+}
+
+.panel-content {
+  margin: 0;
+  display: inline-block;
+}
+
+.action-content {
+  display: block;
+}
+
 #cambio-btn {
   border: 1px solid black;
   margin: 20px;
-  font-size: var(--large-font);
-  background-color: rgb(33, 167, 0);
+  padding:20px;
+  font-size: 2.5em;
+  /* background-image: url(/img/retina-wood.png); */
+  background: linear-gradient(rgb(75, 34, 0) -50%, rgb(73, 46, 23) 50%, rgb(75, 34, 0) 150%);
+  border-radius: 15px;
+  box-shadow: 1px 1px rgb(49, 18, 0), 2px 2px rgb(110, 44, 0);
   color: white;
+  font-family: Satisfy;
+  color: tan;
 }
 
-.slapping-bar-highlight {
-  background-color: white;
+#cambio-btn:active {
+  box-shadow: none;
+  position: relative;
+  top: 2px;
+  left: 2px;
 }
+
 
 .bar-container {
+  margin-top: 10px;
   width: 100%;
   box-sizing: border-box;
   height: 20px;
-  border: 2px solid gold;
+  border: 2px solid rgb(29, 13, 3);
   overflow: hidden;
+  border-radius: 15px;
+}
+
+.score-value {
+  padding-left: 5px;
+}
+
+.dots {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  /* flex-grow: 1; */
+}
+
+.dots:after {
+  content: ": ......................................................................";
+  white-space: nowrap;
+}
+
+.score-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bar-container-highlight {
+  border-color: gold;
+  box-shadow: 0px 5px 10px #fcff31, 
+             0px -5px 10px #fcff31;
 }
 
 #player-name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid black;
+}
+
+#player-name-input {
   font-size: var(--large-font);
-  text-align: center;
-  border-bottom: 1px solid black;
+  font-family: Satisfy;
+  width: 90%;
+  border: none;
+  background: rgba(0,0,0,0);
+  color: rgb(29, 13, 3);
+  padding-left: 10px;
 }
 
-#player-name, .message-container, .panel-section-title, .score-item {
-  margin: 20px;
+.edit-btn {
+  font-size: 1.5em;
 }
 
-.score-item {
-
-}
-
-#slap-container {
-  /* width: 90%;
-  margin: auto; */
-  margin-top: 10px;
-}
-
-.panel-section-title {
+.panel-section {
   font-size: var(--medium-font);
-  text-align: center;
-  border-bottom: 1px solid black;
-}
-
-.message-container {
-  border: 3px solid black;
-  padding: 20px;
+  margin-top: 20px;
 }
 
 #phase-message {
@@ -74,4 +137,13 @@
 
 #message {
   margin-top: 0;
+}
+
+#cambio-btn:disabled {
+  position: relative;
+  top: 2px;
+  left: 2px;
+  box-shadow: none;
+  background: linear-gradient(rgb(71, 34, 4) -50%, rgb(73, 50, 29) 50%, rgb(71, 34, 4) 150%);  
+  color: rgb(65, 22, 5);
 }

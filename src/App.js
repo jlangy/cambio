@@ -6,7 +6,7 @@ import Menu from './components/Menu';
 import Game from './components/Game';
 import InfoPanel from './components/InfoPanel';
 
-import { CLEAR, CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT, NEW_ROUND } from './actions/types';
+import { TEST_GAME, CLEAR, CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT, NEW_ROUND } from './actions/types';
 
 
 

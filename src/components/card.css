@@ -1,11 +1,11 @@
-/* :root {
-  --card-height: 11%;
-  --card-width: 7%;
-} */
 :root {
+  --card-height: 11.2%;
+  --card-width: 7.4%;
+}
+/* :root {
   --card-height: 102px;
   --card-width: 68px;
-}
+} */
 
 .front, .back {
   /* height: var(--card-height);
@@ -17,6 +17,7 @@
   top: 0;
   background-color: white;
   background-size: cover;
+  border-radius: 5px;
 }
 
 
@@ -31,7 +32,8 @@
   right: 0;
   left: 0;
   bottom: 0;
-  position: absolute
+  z-index: 2;
+  position: absolute;
 }
 
 .selected{

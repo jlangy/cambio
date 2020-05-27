@@ -72,11 +72,11 @@ function Card({game, card, socket, dispatch}) {
         case game.player - 1 % game.totalPlayers:
           return '85.4%';
         case (game.player - 1 + 1) % game.totalPlayers: 
-          return `${8 + card.handPosition * 8}%`;
+          return `${34 + card.handPosition * 8}%`;
         case (game.player - 1 + 2) % game.totalPlayers:
           return `6%`;
         case (game.player - 1 + 3) % game.totalPlayers:
-          return `${8 + card.handPosition * 8}%`;
+          return `${34 + card.handPosition * 8}%`;
         default:
           console.log('error in getTop switch statement', card.hand + 1);
       }
@@ -91,13 +91,13 @@ function Card({game, card, socket, dispatch}) {
     if(card.hand || card.hand === 0){
       switch (card.hand){
         case game.player - 1 % game.totalPlayers:
-          return `${8 + card.handPosition * 8}%`;
+          return `${34 + card.handPosition * 8}%`;
         case (game.player - 1 + 1) % game.totalPlayers: 
           return `6%`;
         case (game.player - 1 + 2) % game.totalPlayers:
-          return `${8 + card.handPosition * 8}%`;
+          return `${34 + card.handPosition * 8}%`;
         case (game.player - 1 + 3) % game.totalPlayers:
-          return '94%';
+          return '86%';
         default:
           console.log('error in getTop switch statement');
       }
@@ -160,7 +160,7 @@ function Card({game, card, socket, dispatch}) {
 
 
   function getZIndex(){
-    return card.discard ? card.discard : '';   }
+    return card.discard ? card.discard + 2 : '2';   }
 
   function getTopDrawCardIndex(){
     const numDrawCards = game.cards.filter(card => card.draw || card.draw === 0).length

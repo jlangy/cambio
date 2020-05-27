@@ -34,11 +34,6 @@ let rooms = {};
 
 app.use(express.static(path.join(__dirname, 'build')));
 
-function startGame(gameName){
-  const cards = setUpDeck(rooms[gameName].totalPlayers);
-  io.in(gameName).emit('begin game', {cards});
-}
-
 function setUpDeck(totalPlayers){
   let deck = new Deck(cardsDeck);
   deck.shuffle();
@@ -57,6 +52,11 @@ function setUpDeck(totalPlayers){
     }
   })
   return cards;
+}
+
+function startGame(gameName){
+  const cards = setUpDeck(rooms[gameName].totalPlayers);
+  io.in(gameName).emit('begin game', {cards});
 }
 
 io.on('connection', socket => {
