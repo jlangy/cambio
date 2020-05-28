@@ -3,4 +3,5 @@
   font-size: var(--medium-font);
   font-family: Satisfy;
   border-bottom: 2px solid black;
+  transform-origin: bottom left;
 }

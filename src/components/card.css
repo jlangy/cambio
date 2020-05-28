@@ -53,6 +53,7 @@
   transition: -webkit-transform ease 1000ms;
   transition: transform ease 1s 1s;
   box-shadow: 2px 2px 2px rgba(0,0,0,0.5);
+  box-sizing: border-box;
 }
 
 .peek{

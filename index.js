@@ -11,20 +11,23 @@ const Deck = require('card-deck');
 //   's_11','s_11','s_11','s_11','s_5','s_6','s_7','s_8','s_9','s_10','s_11','s_12','s_13',
 //   'j_0','j_0'
 // ]
-const cardsDeck = [
-  'c_1','c_2','c_3','c_4','c_5','c_6','c_7','c_8','c_9','c_10','c_11','c_12','c_13',
-  'd_1','d_2','d_3','d_4','d_5','d_6','d_7','d_8','d_9','d_10','d_11','d_12','d_13',
-  'h_1','h_2','h_3','h_4','h_5','h_6','h_7','h_8','h_9','h_10','h_11','h_12','h_13',
-  's_1','s_2','s_3','s_4','s_5','s_6','s_7','s_8','s_9','s_10','s_11','s_12','s_13',
-  'j_0','j_0'
-]
 // const cardsDeck = [
-//   'c_7','c_7','c_7','c_7','c_7','c_7','c_7','c_7','c_7','c_7','c_7','c_7','c_7',
-//   'd_7','d_7','d_7','d_7','d_7','d_7','d_7','d_7','d_7','d_7','d_7','d_7','d_7',
-//   'h_7','h_7','h_7','h_7','h_7','h_7','h_7','h_7','h_7','h_7','h_7','h_7','h_7',
-//   's_7','s_7','s_7','s_7','s_7','s_7','s_7','s_7','s_7','s_7','s_7','s_7','s_7',
+//   'c_1','c_2','c_3','c_4','c_5','c_6','c_7','c_8','c_9','c_10','c_11','c_12','c_13',
+//   'd_1','d_2','d_3','d_4','d_5','d_6','d_7','d_8','d_9','d_10','d_11','d_12','d_13',
+//   'h_1','h_2','h_3','h_4','h_5','h_6','h_7','h_8','h_9','h_10','h_11','h_12','h_13',
+//   's_1','s_2','s_3','s_4','s_5','s_6','s_7','s_8','s_9','s_10','s_11','s_12','s_13',
 //   'j_0','j_0'
 // ]
+const cardsDeck = [
+  'c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13',
+]
 
 const app = express();
 const server = app.listen(port, () => console.log(`listening on port ${port}`));
@@ -84,6 +87,10 @@ io.on('connection', socket => {
     socket.to(roomName).emit('change turn')
   })
 
+  socket.on('change name', (info) => {
+    socket.to(info.roomName).emit('change name', info)
+  })
+
   socket.on('end round', ({roomName}) => {
     socket.to(roomName).emit('end round');
     setTimeout(() => {
@@ -108,8 +115,12 @@ io.on('connection', socket => {
     socket.to(roomName).emit('cabo turn end');
   })
 
-  socket.on('cabo', ({roomName}) => {
-    socket.to(roomName).emit('cabo');
+  socket.on('remove highlight', ({roomName}) => {
+    socket.to(roomName).emit('remove highlight')
+  })
+
+  socket.on('cabo', ({roomName, player}) => {
+    socket.to(roomName).emit('cabo', {player});
   })
 
   socket.on('not slapping', () => {
@@ -131,13 +142,14 @@ io.on('connection', socket => {
     io.to(roomName).emit('slapped', {player})
   })
 
-  socket.on('start game', ({roomName}) => {
+  socket.on('start game', ({roomName, totalPlayers}) => {
+    totalPlayers = Number(totalPlayers)
     if(rooms[roomName]){
       socket.emit('room name taken')
     } else {
-      rooms[roomName] = {totalPlayers: 2, playersJoined: 1, finishedPeeking: 0}
+      rooms[roomName] = {totalPlayers, playersJoined: 1, finishedPeeking: 0}
       socket.join(roomName);
-      socket.emit('game created', {roomName, player: 1})
+      socket.emit('game created', {roomName, player: 1, totalPlayers})
     }
   });
 
@@ -152,9 +164,11 @@ io.on('connection', socket => {
     } else {
       room.playersJoined += 1;
       socket.join(roomName)
-      socket.emit('game joined', {roomName, playersJoined: room.playersJoined})
+      socket.emit('game joined', {roomName, playersJoined: room.playersJoined, totalPlayers: room.totalPlayers})
       socket.to(roomName).emit('player joined')
+      console.log(room)
       if(room.playersJoined === room.totalPlayers){
+        console.log('here')
         startGame(roomName);
       }
     }

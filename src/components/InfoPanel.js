@@ -12,8 +12,8 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
 
   function handleCabo(){
     if(game.turn === game.player && game.gamePhase === "initialCardPick" && !game.cabo){
-      dispatch({type: CABO})
-      socket.emit('cabo', {roomName: game.name})
+      dispatch({type: CABO, player: game.player})
+      socket.emit('cabo', {roomName: game.name, player: game.player})
     }
   }
 
@@ -100,6 +100,7 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
     if(editing){
       console.log(game.player, name)
       dispatch({type: CHANGE_NAME, name, player: game.player});
+      socket.emit('change name', {name, player: game.player, roomName: game.name})
     }
     setEditing(prev => !prev);
   }
@@ -107,7 +108,7 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
   return (
     <div className="info-panel-container">
       <div id="player-name">
-        <input id="player-name-input" value={name} disabled={!editing} onChange={(e) => setName(e.target.value)}focus={editing}/>
+        <input id="player-name-input" value={name} disabled={!editing} onChange={(e) => setName(e.target.value)} maxLength="12"/>
         <i className={`fas ${editing ? 'fa-check' : 'fa-edit'} edit-btn`} onClick={handleClick}></i>
       </div>
 
@@ -141,10 +142,10 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
       <div className="panel-item">
         <h3 className='panel-title'>Scores:</h3> 
         {game.players.map(({player, score}, i) => 
-        <div className="score-container">
-          <p key={i} className='score-name'>{`${player}`}</p>
+        <div key={i} className="score-container">
+          <p className='score-name'>{`${player}`}</p>
           <span className="dots"></span>
-          <p key={i} className='score-value'>{`${score}`}</p>
+          <p className='score-value'>{`${score}`}</p>
         </div>  
         )}
       </div>
@@ -152,7 +153,7 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
       <div id="cambio-btn-container">
         
         <div className='panel-item'>
-        {!game.cabo ? <p className="panel-title">No one has knocked!</p> : <p className="panel-title">Player {game.player} knocked. {game.turnsRemaining === 1 ? "1 turn remainging." : `${game.turnsRemaining} turns remaining.`}</p>}
+        {!game.cabo ? <p className="panel-title">No one has knocked!</p> : <p className="panel-title">Player {game.cabo} knocked. {game.turnsRemaining === 1 ? "1 turn remainging." : `${game.turnsRemaining} turns remaining.`}</p>}
         </div>
         
         <button id="cambio-btn" onClick={handleCabo} disabled={game.player !== game.turn || game.gamePhase !== 'initialCardPick' || game.cabo}>Knock!</button>

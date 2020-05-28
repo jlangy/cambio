@@ -1,4 +1,4 @@
-import { CLEAR, NEW_ROUND, TEST_GAME, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, CLEAR_HIGHLIGHT, CHANGE_NAME } from '../actions/types';
+import { RESET, REMOVE_SELECTS, CLEAR, NEW_ROUND, TEST_GAME, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, CABO, CLEAR_HIGHLIGHT, CHANGE_NAME } from '../actions/types';
 
 const initialState = {};
 
@@ -11,9 +11,14 @@ function getTopDrawCardIndex(state){
 
 export default function(state = initialState, action){
   switch(action.type){
+    case RESET:
+      return {};
+    case REMOVE_SELECTS:
+      return {...state, cards: state.cards.map(card => ({...card, highlight: undefined}))}
     case CLEAR:
       return {...state, cards: []}
     case CHANGE_NAME:
+      console.log(action)
       {
         const {name, player} = action;
         const newPlayers = [...state.players];
@@ -69,8 +74,8 @@ export default function(state = initialState, action){
         ]
       }
     case NEW_GAME:
-      const {name, playersJoined, player} = action;
-      return {name, totalPlayers: 2, playersJoined, player}
+      const {name, playersJoined, player, totalPlayers} = action;
+      return {name, totalPlayers, playersJoined, player}
     case ADD_PLAYER:
       return {...state, playersJoined: state.playersJoined + 1};
     case BEGIN_GAME:
@@ -114,7 +119,10 @@ export default function(state = initialState, action){
         return {...state, swapCard: action}
     
     case CABO:
-      return {...state, cabo: state.turn, turnsRemaining: state.totalPlayers}
+      {
+        const {player} = action;
+        return {...state, cabo: player, turnsRemaining: state.totalPlayers}
+      }
     
     case CABO_TURN_END:
       return {...state, turnsRemaining: state.turnsRemaining - 1}

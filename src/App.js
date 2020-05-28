@@ -6,14 +6,16 @@ import Menu from './components/Menu';
 import Game from './components/Game';
 import InfoPanel from './components/InfoPanel';
 
-import { TEST_GAME, CLEAR, CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT, NEW_ROUND } from './actions/types';
+import { RESET, TEST_GAME, CLEAR, CABO, NEW_GAME, ADD_PLAYER, BEGIN_GAME, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, SELECT_DRAW_CARD, ADD_SLAP_TURN, CABO_TURN_END, END_ROUND, CLEAR_HIGHLIGHT, NEW_ROUND, REMOVE_SELECTS, CHANGE_NAME } from './actions/types';
 
 
 
 function App({game, dispatch}) {
   const [savedSocket, setSavedSocket] = useState();
   const [slapCounter, setSlapCounter] = useState(false);
+  const [joinError, setJoinError] = useState(false);
   const keypressListener = useRef(null);
+  const [disconnection, setDisconnection] = useState(false);
 
   // useEffect(() => {
   //   dispatch({type: TEST_GAME})
@@ -26,7 +28,6 @@ function App({game, dispatch}) {
   function highlightCard(hand, handPosition, success){
     const newCards = [...game.cards];
     const cardIndex = getHandCardIndex(hand, handPosition);
-    console.log('trying to highlight')
     newCards[cardIndex] = {...newCards[cardIndex], highlight: success};
     return newCards;
   }
@@ -51,8 +52,8 @@ function App({game, dispatch}) {
 
     socket.off();
 
-    socket.on('game joined', ({roomName, playersJoined}) => {
-      dispatch({type: NEW_GAME, name: roomName, playersJoined, player: playersJoined})
+    socket.on('game joined', ({roomName, playersJoined, totalPlayers}) => {
+      dispatch({type: NEW_GAME, name: roomName, playersJoined, player: playersJoined, totalPlayers})
     });
 
 
@@ -62,16 +63,26 @@ function App({game, dispatch}) {
     })
 
     socket.on('player disconnection', () => {
-      console.log('player disconnection')
+      setDisconnection(true);
+      dispatch({type: RESET})
     })
 
     socket.on('cabo turn end', () => {
       dispatch({type: CABO_TURN_END})
     })
 
-    socket.on('game created', ({roomName, player}) => {
-      dispatch({type: NEW_GAME, name: roomName, playersJoined: 1, player})
+    socket.on('game created', ({roomName, player, totalPlayers}) => {
+      dispatch({type: NEW_GAME, name: roomName, playersJoined: 1, player, totalPlayers})
     });
+
+    socket.on('change name', (info) => {
+      console.log(info)
+      dispatch({type: CHANGE_NAME, name: info.name, player: info.player})
+    })
+
+    socket.on('remove highlight', () => {
+      dispatch({type: REMOVE_SELECTS})
+    })
 
     socket.on('update cards', ({cards}) => {
       dispatch({type: UPDATE_CARDS, cards});
@@ -91,8 +102,9 @@ function App({game, dispatch}) {
       dispatch({type: BEGIN_GAME, cards, players})
     });
 
-    socket.on('cabo', () => {
-      dispatch({type: CABO})
+    socket.on('cabo', ({player}) => {
+      console.log(player)
+      dispatch({type: CABO, player})
     });
 
     socket.on('end round', () => {
@@ -121,6 +133,10 @@ function App({game, dispatch}) {
       dispatch({type: ADD_PLAYER});
     });
 
+    socket.on('room DNE', () => {
+      setJoinError(true);
+    })
+
     socket.on('change phase', ({phase}) => {
       dispatch({type: CHANGE_PHASE, phase})
     })
@@ -144,7 +160,8 @@ function App({game, dispatch}) {
 
   return (
     <div className='container'>
-      {!game.playing &&  <Menu socket={savedSocket}/>}
+      {disconnection && <p className='disconnection-msg'>A player disconnected, game has been aborted.</p>}
+      {!game.playing &&  <Menu socket={savedSocket} joinNameError={joinError}/>}
       {game.playing && 
         <div className='game-panel-container'>
           <InfoPanel socket={savedSocket} slapCounter={slapCounter}/>

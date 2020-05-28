@@ -1,9 +1,69 @@
 .menu-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  height: 50vh;
+  max-width: 1000px;
+  margin: auto;
+  margin-top: 5vh;
+  align-items: center;
+  justify-content: center;
 }
 
-.input-row {
-  margin: 20px;
+.input-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #AAAE7F;
+  margin: 50px;
+  border-radius: 10px;
+  box-shadow: 5px 5px 10px black;
+}
+
+.error {
+  height: 1.1em;
+  margin: 0;
+  background: rgb(255, 255, 255);
+  margin-bottom: 10px;
+  color: red;
+  border-radius: 5px;
+  border: 2px solid red;
+}
+
+.game-status {
+  max-width: 1000px;
+  margin: 50px auto;
   text-align: center;
+  font-size: var(--medium-font);
+  background: rgb(253, 235, 134);
+  border-radius: 5px;
+  border: 2px solid rgb(94, 94, 27);
+  color: rgb(94, 94, 27);
+}
+
+.about-section {
+  max-width: 1000px;
+  margin: auto;
+  font-size: var(--medium-font);
+}
+
+.game-title {
+  font-family: Pacifico;
+  text-align: center;
+  font-size: var(--large-font);
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.input-box>h2{
+  font-family: Satisfy;
+  text-align: center;
+  font-size: var(--large-font);
+}
+
+.input-container>input{
+  margin-bottom: 20px;
 }

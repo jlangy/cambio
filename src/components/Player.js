@@ -5,45 +5,51 @@ import {connect} from 'react-redux';
 function Player({name, index, game}) {
 
   function getTop(){
-    switch (index){
-      case game.player - 1 % game.totalPlayers:
+    let position = (index - (game.player - 1));
+    position += position < 0 ? 4 : 0; 
+    switch (position){
+      case 0:
         return '80%';
-      case (game.player - 1 + 1) % game.totalPlayers: 
-        return `39%`;
-      case (game.player - 1 + 2) % game.totalPlayers:
-        return `19%`;
-      case (game.player - 1 + 3) % game.totalPlayers:
+      case 1: 
         return `61%`;
+      case 2:
+        return `19%`;
+      case 3:
+        return `39%`;
       default:
         console.log('error in getTop switch statement');
     }
   }
 
   function getLeft(){
-    switch (index){
-      case game.player - 1 % game.totalPlayers:
+    let position = (index - (game.player - 1));
+    position += position < 0 ? 4 : 0;
+    switch (position){
+      case 0:
         return '35%';
-      case (game.player - 1 + 1) % game.totalPlayers: 
-        return `15%`;
-      case (game.player - 1 + 2) % game.totalPlayers:
-        return `58%`;
-      case (game.player - 1 + 3) % game.totalPlayers:
+      case 1: 
         return `76%`;
+      case 2:
+        return `58%`;
+      case 3:
+        return `15%`;
       default:
         console.log('error in getTop switch statement');
     }
   }
 
   function getTransform(){
-    switch (index){
-      case game.player - 1 % game.totalPlayers:
+    let position = (index - (game.player - 1));
+    position += position < 0 ? 4 : 0; 
+    switch (position){
+      case 0:
         return ''
-      case (game.player - 1 + 1) % game.totalPlayers: 
-        return `rotate(90deg)`;
-      case (game.player - 1 + 2) % game.totalPlayers:
-        return `rotate(180deg)`;
-      case (game.player - 1 + 3) % game.totalPlayers:
-        return `rotate(270deg)`;
+      case 1: 
+        return `rotate(-90deg)`;
+      case 2:
+        return `rotate(-180deg)`;
+      case 3:
+        return `rotate(-270deg)`;
     }
     return ''
   }

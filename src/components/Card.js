@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import './card.css';
-import { REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD } from '../actions/types';
+import { REMOVE_SELECTS, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, UPDATE_SCORES } from '../actions/types';
 
 const cardToImg = {
   'c_1' : 'AC.png',
@@ -68,14 +68,16 @@ function Card({game, card, socket, dispatch}) {
   function getTop(){
     //In a players hand
     if(card.hand || card.hand === 0){
-      switch (card.hand){
-        case game.player - 1 % game.totalPlayers:
+      let position = (card.hand - (game.player - 1)) % 4;
+      position += position < 0 ? 4 : 0; 
+      switch (position){
+        case 0:
           return '85.4%';
-        case (game.player - 1 + 1) % game.totalPlayers: 
+        case 1: 
           return `${34 + card.handPosition * 8}%`;
-        case (game.player - 1 + 2) % game.totalPlayers:
+        case 2:
           return `6%`;
-        case (game.player - 1 + 3) % game.totalPlayers:
+        case 3:
           return `${34 + card.handPosition * 8}%`;
         default:
           console.log('error in getTop switch statement', card.hand + 1);
@@ -89,15 +91,17 @@ function Card({game, card, socket, dispatch}) {
 
   function getLeft(){
     if(card.hand || card.hand === 0){
-      switch (card.hand){
-        case game.player - 1 % game.totalPlayers:
+      let position = (card.hand - (game.player - 1));
+      position += position < 0 ? 4 : 0; 
+      switch (position){
+        case 0:
           return `${34 + card.handPosition * 8}%`;
-        case (game.player - 1 + 1) % game.totalPlayers: 
-          return `6%`;
-        case (game.player - 1 + 2) % game.totalPlayers:
-          return `${34 + card.handPosition * 8}%`;
-        case (game.player - 1 + 3) % game.totalPlayers:
+        case 1: 
           return '86%';
+        case 2:
+          return `${34 + card.handPosition * 8}%`;
+        case 3:
+          return `6%`;
         default:
           console.log('error in getTop switch statement');
       }
@@ -111,33 +115,31 @@ function Card({game, card, socket, dispatch}) {
   }
 
   function getRotation(){
-    if(card.hand === false || card.hand === undefined){
-      return ''
-    }
-    if((card.hand === (game.player - 1) % game.totalPlayers )){
-      return '';
-    }
-    if((card.hand === (game.player) % game.totalPlayers)){
-      return 'rotate(90deg)';
-    }
-    if((card.hand === (game.player + 1) % game.totalPlayers)){
-      return '';
-    }
-    if((card.hand === (game.player + 2) % game.totalPlayers)){
-      return 'rotate(-90deg)';
+    if(card.hand || card.hand === 0){
+      let position = (card.hand - (game.player - 1));
+      position += position < 0 ? 4 : 0; 
+      switch (position){
+        case 0:
+          return ``;
+        case 1: 
+          return 'rotate(90deg)';
+        case 2:
+          return `rotate(180deg)`;
+        case 3:
+          return `rotate(270deg)`;
+        default:
+          console.log('error in getTop switch statement');
+      }
     }
   }
 
   function getHighlight(){
     if(card.highlight === false){
-      return '3px solid red'
+      return '1px 1px 5px red, -1px -1px 5px red'
     } else
     if(card.highlight === true){
-      console.log('got into this part')
-      return '3px solid rgb(0,255,0)'
-    } else {
-      return '1px solid black'
-    }
+      return '1px 1px 5px gold, -1px -1px 5px gold'      
+    } 
   }
 
   function getFlipped(){
@@ -270,6 +272,13 @@ function Card({game, card, socket, dispatch}) {
     }, 1000);
   }
 
+  function highlightCard(hand, handPosition, success){
+    const newCards = [...game.cards];
+    const cardIndex = getHandCardIndex(hand, handPosition);
+    newCards[cardIndex] = {...newCards[cardIndex], highlight: success};
+    return newCards;
+  }
+
   function flipCard(hand, handPosition){
     const newCards = [...game.cards]
     const cardIndex = getHandCardIndex(hand, handPosition)
@@ -398,6 +407,8 @@ function Card({game, card, socket, dispatch}) {
         {
           if(!game.swapCard){
             socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
+            const newCards = highlightCard(card.hand, card.handPosition, true);
+            dispatch({type: UPDATE_CARDS, cards: newCards})
             return dispatch({type: ADD_SWAP_CARD, hand: card.hand, handPosition: card.handPosition})
           } 
           //Ignore click if same as first card
@@ -407,6 +418,7 @@ function Card({game, card, socket, dispatch}) {
           const newCards = swapHandCards(card.hand, card.handPosition, game.swapCard.hand, game.swapCard.handPosition);
           updateCards(newCards, true);
           dispatch({type: REMOVE_SWAP_CARD});
+          dispatch({type: REMOVE_SELECTS});
           changeTurn();
         }
         break;
@@ -421,6 +433,7 @@ function Card({game, card, socket, dispatch}) {
         setTimeout(() => {
           updateCards(game.cards)
           dispatch({type: CHANGE_PHASE, phase: "spy and swap: spy"});
+          socket.emit('remove highlight', {roomName: game.name})
         }, 2000);
         break;
 
@@ -434,20 +447,25 @@ function Card({game, card, socket, dispatch}) {
         setTimeout(() => {
           updateCards(game.cards);
           dispatch({type: CHANGE_PHASE, phase: "spy and swap: swap"});
+          socket.emit('remove highlight', {roomName: game.name})
         }, 2000);
         break;
 
       case 'spy and swap: swap':
         if(!game.swapCard){
           socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
+          const newCards = highlightCard(card.hand, card.handPosition, true);
           dispatch({type: ADD_SWAP_CARD, hand: card.hand, handPosition: card.handPosition})
+          dispatch({type: UPDATE_CARDS, cards: newCards})
         } else {
           if(game.swapCard.hand === card.hand && game.swapCard.handPosition === card.handPosition){
             return;
           }
           const newCards = swapHandCards(card.hand, card.handPosition, game.swapCard.hand, game.swapCard.handPosition);
+          //CLEAR SWAP CARDS SELECT
           updateCards(newCards, true);
-          dispatch({type: REMOVE_SWAP_CARD})
+          dispatch({type: REMOVE_SWAP_CARD});
+          dispatch({type: REMOVE_SELECTS});
           changeTurn();
         }
         break;
@@ -530,8 +548,8 @@ function Card({game, card, socket, dispatch}) {
 
   return (
     <div className={`card-container ${getFlipped() ? 'flipped' : ''} ${card.selected ? 'selected' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex()}} onClick={handleClick}>
-      <div className={`front ${card.flipped ? 'peek' : ''}`} style={{border: getHighlight(), backgroundImage: getImage()}}></div>
-      <div className={`back ${card.flipped ? 'peek' : ''}`} style={{border: getHighlight(), backgroundImage: 'url(/img/red_back.png)'}}></div>
+      <div className={`front ${card.flipped ? 'peek' : ''}`} style={{boxShadow: getHighlight(), backgroundImage: getImage()}}></div>
+      <div className={`back ${card.flipped ? 'peek' : ''}`} style={{boxShadow: getHighlight(), backgroundImage: 'url(/img/red_back.png)'}}></div>
     </div>
   )
 }
