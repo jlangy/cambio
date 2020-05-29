@@ -329,8 +329,8 @@ function Card({game, card, socket, dispatch}) {
           let newCards = moveDrawCardToHand(card.hand, card.handPosition, game.cards);
           newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
           endTurn(newCards);
-          break;
         }
+        break;
 
       case 'discardCardSelected':
         if(card.hand + 1 === game.player)
@@ -338,8 +338,8 @@ function Card({game, card, socket, dispatch}) {
           let newCards = moveDiscardCardToHand(card.hand, card.handPosition, game.cards);
           newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
           endTurn(newCards);
-          break;
         }
+        break;
 
       case 'slap selection':
         {
@@ -369,8 +369,8 @@ function Card({game, card, socket, dispatch}) {
             updateCards(newCards, true);
             updatePhase('drawCardSelected', true);
           }
-          break;
         }
+        break;
 
       case 'slap replacement':
         {
@@ -380,8 +380,8 @@ function Card({game, card, socket, dispatch}) {
           const newCards = moveHandCardToHand(card.hand, card.handPosition, game.slapSlot.hand, game.slapSlot.handPosition, game.cards);
           updatePhase('drawCardSelected', true);
           updateCards(newCards, true);
-          break;
         }
+        break;
       
       case 'peek':
         if(!activePlayersHand()){
