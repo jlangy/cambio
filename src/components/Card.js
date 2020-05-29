@@ -23,7 +23,7 @@ const cardToImg = {
   'c_11' : 'JC.png',
   'c_12' : 'QC.png',
   'c_13' : 'KC.png',
-  'd_1' : 'AD.png',
+  'd_1' : 'ace_D.png',
   'd_2' : '2D.png',
   'd_3' : '3D.png',
   'd_4' : '4D.png',
