@@ -20,7 +20,10 @@
   border-radius: 5px;
 }
 
-
+.highlight {
+  box-shadow: 1px 1px 5px gold, -1px -1px 5px gold !important;
+  border: 3px solid gold;
+}
 
 .card-container {
   height: var(--card-height);
@@ -34,6 +37,7 @@
   bottom: 0;
   z-index: 2;
   position: absolute;
+  transform-origin: bottom left;
 }
 
 .selected{

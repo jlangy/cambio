@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import './menu.css';
 
-function Menu({game, socket, joinNameError, createNameError}) {
+function Menu({game, socket, joinNameError, setDisconnection}) {
   const [gameName, setGameName] = useState('');
   const [joinGameName, setJoinGameName] = useState('');
   const [numPlayers, setNumPlayers] = useState(2);
@@ -10,6 +10,7 @@ function Menu({game, socket, joinNameError, createNameError}) {
   const [joinError, setJoinError] = useState('');
   
   function startGame(){
+    setDisconnection(false);
     if(gameName.length > 3 && gameName.length <= 12){
       setCreateError('');
       socket.emit('start game', {roomName: gameName, totalPlayers: numPlayers})
@@ -19,6 +20,7 @@ function Menu({game, socket, joinNameError, createNameError}) {
   }
 
   function joinGame(){
+    setDisconnection(false);
     if(joinGameName.length > 3 && joinGameName.length <=12){
       setJoinError('');
       socket.emit('join game', {roomName: joinGameName})

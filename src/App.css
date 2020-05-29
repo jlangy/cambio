@@ -16,6 +16,14 @@
   color: rgb(184, 0, 0);
 }
 
+.fa-window-close {
+  float: right;
+}
+
+.fa-window-close:hover {
+  color: rgb(240, 0, 0)
+}
+
 .container {
   height: 100%;
 }

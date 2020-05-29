@@ -89,7 +89,6 @@ function App({game, dispatch}) {
     })
 
     socket.on('change turn', () => {
-      console.log('got change turn event in client')
       dispatch({type: CHANGE_TURN})
       dispatch({type: CLEAR_HIGHLIGHT})
     });
@@ -160,8 +159,9 @@ function App({game, dispatch}) {
 
   return (
     <div className='container'>
-      {disconnection && <p className='disconnection-msg'>A player disconnected, game has been aborted.</p>}
-      {!game.playing &&  <Menu socket={savedSocket} joinNameError={joinError}/>}
+      <button onClick={() => savedSocket.emit('log rooms')}>log rooms</button>
+      {disconnection && <p className='disconnection-msg'>A player disconnected, game has been aborted.<i className="fas fa-window-close" onClick={() => setDisconnection(false)} /></p>}
+      {!game.playing &&  <Menu socket={savedSocket} joinNameError={joinError} setDisconnection={setDisconnection}/>}
       {game.playing && 
         <div className='game-panel-container'>
           <InfoPanel socket={savedSocket} slapCounter={slapCounter}/>

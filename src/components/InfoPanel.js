@@ -25,8 +25,8 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
   }, [editing])
 
   function gameMessage(){
-    const playerName = game.players[game.turn - 1] && game.players[game.turn].player;
-    const slapName = game.players[game.slapTurn - 1] && game.players[game.slapTurn].player;
+    const playerName = game.players[game.turn - 1] && game.players[game.turn-1].player;
+    const slapName = game.players[game.slapTurn - 1] && game.players[game.slapTurn-1].player;
     switch (game.gamePhase){
       case 'initialCardPick':
         return `${playerName}: Pick a card from the discard pile or the draw pile`
@@ -53,7 +53,7 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
       case 'spy and swap: swap':
         return `${playerName}: Select two cards to swap their places.`
       case 'inactive':
-        return 'waiting on other player actions'
+        return 'waiting...'
       case 'slapping':
         return 'Slapping phase! Hit spacebar if you know a matching card in any players hand.'
       default:

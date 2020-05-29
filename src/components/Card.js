@@ -3,6 +3,12 @@ import {connect} from 'react-redux';
 import './card.css';
 import { REMOVE_SELECTS, REMOVE_SWAP_CARD, ADD_PEEKED, END_ROUND, CABO_TURN_END, CHANGE_PHASE, UPDATE_CARDS, CHANGE_TURN, ADD_SLAP_SLOT, ADD_SWAP_CARD, UPDATE_SCORES } from '../actions/types';
 
+//dimensions in percent
+const CARD_HEIGHT = 11.2;
+const CARD_WIDTH = 7.4;
+const BOARD_MARGIN = 2;
+const CARD_MARGIN = 1;
+
 const cardToImg = {
   'c_1' : 'AC.png',
   'c_2' : '2C.png',
@@ -72,13 +78,14 @@ function Card({game, card, socket, dispatch}) {
       position += position < 0 ? 4 : 0; 
       switch (position){
         case 0:
-          return '85.4%';
+          return `${100 - CARD_HEIGHT - BOARD_MARGIN}%`;
         case 1: 
-          return `${34 + card.handPosition * 8}%`;
+          //extra subtracted card width adjusts for rotation direction
+          return `${(50 - (CARD_WIDTH + CARD_MARGIN) * 2 - CARD_WIDTH ) + card.handPosition * (CARD_WIDTH + CARD_MARGIN)}%`;
         case 2:
-          return `6%`;
+          return `${BOARD_MARGIN}%`;
         case 3:
-          return `${34 + card.handPosition * 8}%`;
+          return `${(50 - (CARD_WIDTH + CARD_MARGIN) * 2 ) + card.handPosition * (CARD_WIDTH + CARD_MARGIN)}%`;
         default:
           console.log('error in getTop switch statement', card.hand + 1);
       }
@@ -95,13 +102,13 @@ function Card({game, card, socket, dispatch}) {
       position += position < 0 ? 4 : 0; 
       switch (position){
         case 0:
-          return `${34 + card.handPosition * 8}%`;
+          return `${(50 - (CARD_WIDTH + CARD_MARGIN) * 2 ) + card.handPosition * (CARD_WIDTH + CARD_MARGIN)}%`;
         case 1: 
-          return '86%';
+          return `${100 - CARD_HEIGHT - BOARD_MARGIN}%`;
         case 2:
-          return `${34 + card.handPosition * 8}%`;
+          return `${(50 - (CARD_WIDTH + CARD_MARGIN) * 2 ) + card.handPosition * (CARD_WIDTH + CARD_MARGIN)}%`;
         case 3:
-          return `6%`;
+          return `${CARD_HEIGHT + BOARD_MARGIN}%`;
         default:
           console.log('error in getTop switch statement');
       }
@@ -124,23 +131,23 @@ function Card({game, card, socket, dispatch}) {
         case 1: 
           return 'rotate(90deg)';
         case 2:
-          return `rotate(180deg)`;
+          return ``;
         case 3:
-          return `rotate(270deg)`;
+          return `rotate(-90deg)`;
         default:
           console.log('error in getTop switch statement');
       }
     }
   }
 
-  function getHighlight(){
-    if(card.highlight === false){
-      return '1px 1px 5px red, -1px -1px 5px red'
-    } else
-    if(card.highlight === true){
-      return '1px 1px 5px gold, -1px -1px 5px gold'      
-    } 
-  }
+  // function getHighlight(){
+  //   if(card.highlight === false){
+  //     return '1px 1px 5px red, -1px -1px 5px red'
+  //   } else
+  //   if(card.highlight === true){
+  //     return '1px 1px 5px gold, -1px -1px 5px gold'      
+  //   } 
+  // }
 
   function getFlipped(){
     if(game.roundOver && !(game.draw || game.draw === 0)){
@@ -548,8 +555,8 @@ function Card({game, card, socket, dispatch}) {
 
   return (
     <div className={`card-container ${getFlipped() ? 'flipped' : ''} ${card.selected ? 'selected' : ''}`} style={{left: getLeft(), top: getTop(), transform: getRotation(), zIndex: getZIndex()}} onClick={handleClick}>
-      <div className={`front ${card.flipped ? 'peek' : ''}`} style={{boxShadow: getHighlight(), backgroundImage: getImage()}}></div>
-      <div className={`back ${card.flipped ? 'peek' : ''}`} style={{boxShadow: getHighlight(), backgroundImage: 'url(/img/red_back.png)'}}></div>
+      <div className={`front ${card.flipped ? 'peek' : ''} ${card.highlight ? 'highlight' : ''}`} style={{backgroundImage: getImage()}}></div>
+      <div className={`back ${card.flipped ? 'peek' : ''} ${card.highlight ? 'highlight' : ''}`} style={{backgroundImage: 'url(/img/red_back.png)'}}></div>
     </div>
   )
 }

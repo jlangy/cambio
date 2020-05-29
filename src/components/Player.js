@@ -2,6 +2,12 @@ import React from 'react';
 import './player.css';
 import {connect} from 'react-redux';
 
+const CARD_HEIGHT = 11.2;
+const CARD_WIDTH = 7.4;
+const BOARD_MARGIN = 2;
+const CARD_MARGIN = 1;
+const WRITING_HEIGHT = 4;
+
 function Player({name, index, game}) {
 
   function getTop(){
@@ -9,13 +15,13 @@ function Player({name, index, game}) {
     position += position < 0 ? 4 : 0; 
     switch (position){
       case 0:
-        return '80%';
+        return `${100 - (2*BOARD_MARGIN + CARD_HEIGHT) - WRITING_HEIGHT}%`;
       case 1: 
-        return `61%`;
+        return `${(50 + (CARD_WIDTH + CARD_MARGIN) * 2 )}%`;
       case 2:
-        return `19%`;
+        return `${(2*BOARD_MARGIN + CARD_HEIGHT) - WRITING_HEIGHT}%`;
       case 3:
-        return `39%`;
+        return `${(50 - (CARD_WIDTH + CARD_MARGIN) * 2 )}%`;
       default:
         console.log('error in getTop switch statement');
     }
@@ -26,13 +32,13 @@ function Player({name, index, game}) {
     position += position < 0 ? 4 : 0;
     switch (position){
       case 0:
-        return '35%';
+        return `${(50 - (CARD_WIDTH + CARD_MARGIN) * 2 )}%`;
       case 1: 
-        return `76%`;
+        return `${100 - 2*BOARD_MARGIN - CARD_HEIGHT}%`;
       case 2:
-        return `58%`;
+        return `${(50 + (CARD_WIDTH + CARD_MARGIN) * 2 )}%`;
       case 3:
-        return `15%`;
+        return `${2*BOARD_MARGIN + CARD_HEIGHT}%`;
       default:
         console.log('error in getTop switch statement');
     }
