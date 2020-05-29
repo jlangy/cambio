@@ -246,8 +246,29 @@ function Card({game, card, socket, dispatch}) {
   function checkRoundEnd(){
     if(game.cabo){
       if(game.turnsRemaining === 1){
-        dispatch({type: END_ROUND});
-        socket.emit('end round', {roomName: game.name})
+        const playerScores = [];
+        let caboSuccess = true;
+        let gameOver = false;
+        const newPlayers = game.players.map((player,i) => {
+          const playerScore = game.cards.filter(card => card.hand === i).reduce((total,card) => {
+            let cardValue = Number(card.value.split('_')[1]);
+            if(cardValue > 10){
+              cardValue = 10;
+            }
+            return total + cardValue;
+          }, 0);
+          playerScores.push(playerScore);
+          return {...player, score: player.score + playerScore}
+        })
+        if(playerScores.some(score => score < playerScores[game.cabo - 1])){
+          newPlayers[game.cabo - 1].score += 10;
+          caboSuccess = false;
+        }
+        if(newPlayers.some(player => player.score > 50)){
+          gameOver = true;
+        }
+        dispatch({type: END_ROUND, caboSuccess, gameOver, newPlayers});
+        socket.emit('end round', {roomName: game.name, gameOver, newPlayers, caboSuccess})
       } else {
         dispatch({type: CABO_TURN_END})
         socket.emit('cabo turn end', {roomName: game.name})

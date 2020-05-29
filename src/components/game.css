@@ -33,9 +33,24 @@
   color: white;
   font-size: 3em;
   font-family: Pacifico;
-  position: relative;
+  position: absolute;
   left: 40%;
   top: 40%;
   transform: rotate(-4deg);
   width: 200px;
+}
+
+.game-end-info, .round-end-info {
+  z-index: 2;
+  position: relative;
+  text-align: center;
+  color: rgb(222, 255, 200);
+  font-size: var(--medium-font);
+  margin-top: 5%;
+  /* top: 10%; */
+}
+
+#menu-btn {
+  margin: 10px;
+  font-family: Satisfy;
 }

@@ -87,6 +87,11 @@ io.on('connection', socket => {
     }
   });
 
+  socket.on('leave', ({roomName}) => {
+    socket.leave(roomName);
+    delete rooms[roomName];
+  })
+
   socket.on('log rooms', () => console.log(rooms))
 
   socket.on('disconnecting', () => {
@@ -103,11 +108,13 @@ io.on('connection', socket => {
     socket.to(info.roomName).emit('change name', info)
   })
 
-  socket.on('end round', ({roomName}) => {
-    socket.to(roomName).emit('end round');
-    setTimeout(() => {
-      io.in(roomName).emit('new round', {cards: setUpDeck(rooms[roomName].totalPlayers)});
-    }, 5000);
+  socket.on('end round', ({roomName, gameOver, caboSuccess, newPlayers}) => {
+    socket.to(roomName).emit('end round', {newPlayers, caboSuccess, gameOver});
+    if(!gameOver){
+      setTimeout(() => {
+        io.in(roomName).emit('new round', {cards: setUpDeck(rooms[roomName].totalPlayers)});
+      }, 12000);
+    }
   })
 
   socket.on("change phase", ({roomName, phase}) => {

@@ -2,7 +2,7 @@ import { RESET, REMOVE_SELECTS, CLEAR, NEW_ROUND, TEST_GAME, REMOVE_SWAP_CARD, A
 
 const initialState = {};
 
-const MAX_SCORE = 100;
+const MAX_SCORE = 10;
 
 function getTopDrawCardIndex(state){
   const numDrawCards = state.cards.filter(card => card.draw || card.draw === 0).length
@@ -28,7 +28,7 @@ export default function(state = initialState, action){
     case NEW_ROUND:
       {
         const {cards} = action;
-        return {...state, cabo: false, turnsRemaining: null, roundOver: false, peeked: 0, cards, gamePhase: 'peeking', round: state.round + 1, turn: (state.round + 1) % (state.totalPlayers) || state.totalPlayers}
+        return {...state, cabo: false, turnsRemaining: null, roundOver: false, peeked: 0, cards, caboSuccess: null, gamePhase: 'peeking', round: state.round + 1, turn: (state.round + 1) % (state.totalPlayers) || state.totalPlayers}
       }
     case TEST_GAME:
       return {
@@ -128,20 +128,11 @@ export default function(state = initialState, action){
       return {...state, turnsRemaining: state.turnsRemaining - 1}
     
     case END_ROUND:
-      const newPlayers = state.players.map((player,i) => {
-        const playerScore = state.cards.filter(card => card.hand === i).reduce((total,card) => {
-          let cardValue = Number(card.value.split('_')[1]);
-          if(cardValue > 10){
-            cardValue = 10;
-          }
-          return total + cardValue;
-        }, 0);
-        return {...player, score: player.score + playerScore}
-      })
-      if(newPlayers.some(player => player.score > MAX_SCORE)){
-        return {...state, roundOver: true, gameOver: true, players: newPlayers}
-      } else {
-        return {...state, roundOver: true, players: newPlayers}
+      {
+        const {caboSuccess, gameOver, newPlayers} = action;
+        {
+          return {...state, roundOver: true, players: newPlayers, caboSuccess, gameOver}
+        }
       }
 
     case ADD_PEEKED: 

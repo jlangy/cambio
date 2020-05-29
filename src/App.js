@@ -63,8 +63,10 @@ function App({game, dispatch}) {
     })
 
     socket.on('player disconnection', () => {
-      setDisconnection(true);
-      dispatch({type: RESET})
+      if(!game.gameOver){
+        setDisconnection(true);
+        dispatch({type: RESET})
+      }
     })
 
     socket.on('cabo turn end', () => {
@@ -76,7 +78,6 @@ function App({game, dispatch}) {
     });
 
     socket.on('change name', (info) => {
-      console.log(info)
       dispatch({type: CHANGE_NAME, name: info.name, player: info.player})
     })
 
@@ -102,12 +103,11 @@ function App({game, dispatch}) {
     });
 
     socket.on('cabo', ({player}) => {
-      console.log(player)
       dispatch({type: CABO, player})
     });
 
-    socket.on('end round', () => {
-      dispatch({type: END_ROUND})
+    socket.on('end round', ({caboSuccess, newPlayers, gameOver}) => {
+      dispatch({type: END_ROUND, caboSuccess, newPlayers, gameOver})
     });
 
     socket.on('slapping on', () => {
@@ -123,9 +123,7 @@ function App({game, dispatch}) {
 
     socket.on('no slap', () => {
       setSlapCounter(false)
-      console.log('aint noone slapppin')
       dispatch({type: CHANGE_PHASE, phase: 'drawCardSelected'})
-      //change to appropriate game phase
     })
     
     socket.on('player joined', () => {
@@ -141,7 +139,6 @@ function App({game, dispatch}) {
     })
 
     socket.on('slapped', ({player}) => {
-      console.log(`${player} just slapped`)
       setSlapCounter(false);
       dispatch({type: CHANGE_PHASE, phase: 'slap selection'})
       dispatch({type: ADD_SLAP_TURN, player})
@@ -149,16 +146,19 @@ function App({game, dispatch}) {
     });
 
     socket.on('new round', ({cards}) => {
-      dispatch({type: CLEAR});
-      setTimeout(() => {
-        dispatch({type: NEW_ROUND, cards})
-      }, 1000);
+      if(!game.gameOver){
+        dispatch({type: CLEAR});
+        setTimeout(() => {
+          dispatch({type: NEW_ROUND, cards})
+        }, 1000);
+      }
     })
 
   }, [game, savedSocket, handleKeyPress]);
 
   return (
     <div className='container'>
+      {/* <button onClick={() => savedSocket.emit('log rooms')}>log rooms</button> */}
       {disconnection && <p className='disconnection-msg'>A player disconnected, game has been aborted.<i className="fas fa-window-close" onClick={() => setDisconnection(false)} /></p>}
       {!game.playing &&  <Menu socket={savedSocket} joinNameError={joinError} setDisconnection={setDisconnection}/>}
       {game.playing && 
