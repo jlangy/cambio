@@ -34,8 +34,7 @@ function Menu({game, socket, joinNameError, setDisconnection}) {
     <div className="game-info">
       <h1 className='game-title'>Cambio</h1>
       <p className="about-section">Welcome to Cambio, a card game for 2-4 players. If you know how to play, you can create 
-      or join a game using the menu below. Simply enter a name to create one and have your friends join the game using that name. 
-      If you don't know how to play, see our rules page.</p>
+      or join a game using the menu below. Simply enter a name to create one and have your friends join the game using that name.</p>
     </div>
     {game.name && 
       <p className="game-status">
