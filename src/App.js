@@ -159,7 +159,6 @@ function App({game, dispatch}) {
 
   return (
     <div className='container'>
-      <button onClick={() => savedSocket.emit('log rooms')}>log rooms</button>
       {disconnection && <p className='disconnection-msg'>A player disconnected, game has been aborted.<i className="fas fa-window-close" onClick={() => setDisconnection(false)} /></p>}
       {!game.playing &&  <Menu socket={savedSocket} joinNameError={joinError} setDisconnection={setDisconnection}/>}
       {game.playing && 
