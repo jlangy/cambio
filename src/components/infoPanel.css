@@ -82,6 +82,10 @@
   padding-left: 5px;
 }
 
+.score-name {
+  white-space: nowrap;
+}
+
 .dots {
   overflow: hidden;
   display: flex;

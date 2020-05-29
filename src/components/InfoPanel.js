@@ -25,31 +25,33 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
   }, [editing])
 
   function gameMessage(){
+    const playerName = game.players[game.turn - 1] && game.players[game.turn].player;
+    const slapName = game.players[game.slapTurn - 1] && game.players[game.slapTurn].player;
     switch (game.gamePhase){
       case 'initialCardPick':
-        return `Player ${game.turn}'s turn, pick a card from the discard pile or the draw pile`
+        return `${playerName}: Pick a card from the discard pile or the draw pile`
       case 'peeking':
         return `Game ready. Select two of your cards to see before starting the game.`
       case 'drawCardSelected':
-        return `Player ${game.turn} selected a draw card. Either discard, or swap it out with one of your cards.`
+        return `${playerName} selected a draw card. Either discard, or swap it out with one of your cards.`
       case 'discardCardSelected':
-        return `Player ${game.turn} selected the discard card. Swap it out with one of your cards.`
+        return `${playerName} selected the discard card. Swap it out with one of your cards.`
       case 'slap selection':
-        return `Player ${game.slapTurn} slapped. Pick a card that matches the draw card.`
+        return `${playerName}: Pick a card that you think matches the draw card.`
       case 'slap replacement':
-        return `Player ${game.slapTurn} matched the card. Pick a card from your hand to replace it.`
+        return `${slapName}: Pick a card from your hand to replace the removed card.`
       case 'peek':
-        return `Discard power: Player ${game.turn} peeking at one of their own cards`
+        return `${playerName}: Select one of your own cards to look at.`
       case 'spy':
-        return `Discard power: Player ${game.turn} spying on another players card`
+        return `${playerName}: Select a different players card to look at.`
       case 'swap':
-        return `Discard power: Player ${game.turn} swapping two cards`
+        return `${playerName}: Select two cards to swap their places.`
       case 'spy and swap: peek':
-        return `Discard power: Player ${game.turn} peeking at one of their cards`
+        return `${playerName}: Select one of your own cards to look at.`
       case 'spy and swap: spy':
-        return `Discard power: Player ${game.turn} spying on another players cards`
+        return `${playerName}: Select a different players card to look at.`
       case 'spy and swap: swap':
-        return `Discard power: Player ${game.turn} swapping two cards`
+        return `${playerName}: Select two cards to swap their places.`
       case 'inactive':
         return 'waiting on other player actions'
       case 'slapping':
@@ -114,7 +116,7 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
 
       <div className="panel-item">
         <div className="panel-title">Active Player: </div> 
-        <p className="panel-content"> {game.turn}</p>
+        <p className="panel-content"> {game.players[game.turn - 1].player}</p>
       </div>
 
       <div className="panel-item">

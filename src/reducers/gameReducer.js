@@ -83,7 +83,7 @@ export default function(state = initialState, action){
         const {cards} = action;
         const players = [];
         for(let i = 0; i < state.totalPlayers; i++){
-          players.push({player: i+ 1, score: 0})
+          players.push({player: `Player ${i+ 1}`, score: 0})
         }
         return {...state, playing: true, cards, turn: 1, players, gamePhase: 'peeking', peeked: 0, round: 1}
       }

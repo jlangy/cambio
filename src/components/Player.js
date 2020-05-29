@@ -56,7 +56,7 @@ function Player({name, index, game}) {
 
   return (
     <div className="player-name" style={{top: getTop(), left: getLeft(), transform: getTransform()}}>
-      Player: {name}
+      {name}
     </div>
   )
 }
