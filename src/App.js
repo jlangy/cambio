@@ -46,7 +46,7 @@ function App({game, dispatch}) {
     } else {
       // console.log('making a socket')
       socket = io.connect(window.location.hostname)
-      socket = io.connect('localhost:3000');
+      // socket = io.connect('localhost:3000');
       setSavedSocket(socket);
     }
 
