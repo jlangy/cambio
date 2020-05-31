@@ -156,9 +156,10 @@ io.on('connection', socket => {
   })
 
   socket.on('slap', ({roomName, player}) => {
-    console.log('backend slap', roomName, player)
-    rooms[roomName].slapping = false;
-    io.to(roomName).emit('slapped', {player})
+    if(rooms[roomName].slapping){
+      rooms[roomName].slapping = false;
+      io.to(roomName).emit('slapped', {player})
+    }
   })
 
   socket.on('start game', ({roomName, totalPlayers}) => {

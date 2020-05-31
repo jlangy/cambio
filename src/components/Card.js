@@ -253,7 +253,11 @@ function Card({game, card, socket, dispatch}) {
           const playerScore = game.cards.filter(card => card.hand === i).reduce((total,card) => {
             let cardValue = Number(card.value.split('_')[1]);
             if(cardValue > 10){
-              cardValue = 10;
+              if(card.value === "h_13" || card.value === "d_13"){
+                cardValue = -1;
+              } else {
+                cardValue = 10;
+              }
             }
             return total + cardValue;
           }, 0);
@@ -270,8 +274,8 @@ function Card({game, card, socket, dispatch}) {
         dispatch({type: END_ROUND, caboSuccess, gameOver, newPlayers});
         socket.emit('end round', {roomName: game.name, gameOver, newPlayers, caboSuccess})
       } else {
-        dispatch({type: CABO_TURN_END})
-        socket.emit('cabo turn end', {roomName: game.name})
+        dispatch({type: CABO_TURN_END});
+        socket.emit('cabo turn end', {roomName: game.name});
       }
     }
   }
@@ -281,7 +285,7 @@ function Card({game, card, socket, dispatch}) {
   const activeSlappersHand = () => card.hand + 1 === game.slapTurn;
 
   function endTurn(newCards){
-    dispatch({type: UPDATE_CARDS, cards: newCards})
+    dispatch({type: UPDATE_CARDS, cards: newCards});
     socket.emit("update cards", {cards: newCards, roomName: game.name});
     socket.emit("change turn", {roomName: game.name})
     checkRoundEnd();
