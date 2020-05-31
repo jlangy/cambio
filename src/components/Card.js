@@ -377,7 +377,7 @@ function Card({game, card, socket, dispatch}) {
           if(cardNumber === drawNumber){
             // socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
             const newCards = moveHandCardToDiscard(card.hand, card.handPosition, game.cards);
-            updateCards(newCards);
+            updateCards(newCards, true);
             
             //If another players card selected, save the slot location and change phase for player to replace it
             if(card.hand + 1 !== game.slapTurn){
@@ -387,9 +387,9 @@ function Card({game, card, socket, dispatch}) {
               updatePhase('drawCardSelected', true);
             }
           } else {
-            //Player Guessed incorrectly. Gets an extra draw card as penalty
+            //Player Guessed incorrectly. Gets an extra draw card as penaltys
             // socket.emit('highlight', {hand: card.hand, handPosition: card.handPosition, success: true, roomName: game.name});
-            const handPosition = getTotalCardsInHand(game.slapTurn - 1, game.cards);
+            const handPosition = getTotalCardsInHand(game.slapTurn - 1, game.cards) + 1;
             const newCards = moveSecondDrawCardToHand(game.slapTurn - 1, handPosition, game.cards);
             updateCards(newCards, true);
             updatePhase('drawCardSelected', true);
