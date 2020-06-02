@@ -461,7 +461,6 @@ function Card({game, card, socket, dispatch}) {
         break;
 
       case 'spy and swap: spy':
-        console.log(activePlayersHand)
         if(!activePlayersHand){
           viewCardAction(false)
           setTimeout(() => {
