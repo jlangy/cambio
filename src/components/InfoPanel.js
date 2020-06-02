@@ -37,7 +37,7 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
       case 'discardCardSelected':
         return {information: `${playerName} selected the discard card. Swap it out with one of your cards.`, action: `Discard Card Selected`}
       case 'slap selection':
-        return {information: `${playerName}: Pick a card that you think matches the draw card.`, action: `Matching Slap Card`}
+        return {information: `${slapName}: Pick a card that you think matches the draw card.`, action: `Matching Slap Card`}
       case 'slap replacement':
         return {information: `${slapName}: Pick a card from your hand to replace the removed card.`, action: `Replacing Slap Discard`}
       case 'peek':

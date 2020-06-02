@@ -231,9 +231,7 @@ function Card({game, card, socket, dispatch}) {
 
   function getHandValues(cards){
     const handValues = game.players.map((player,i) => {
-      console.log('player', player)
       const handValue = cards.filter(card => card.hand === i).reduce((total,card) => {
-        console.log('total, card', total, card)
         let cardValue = Number(card.value.split('_')[1]);
         if(cardValue > 10){
           //red kings worth -1, all other face cards worth 10
@@ -252,8 +250,6 @@ function Card({game, card, socket, dispatch}) {
         let caboSuccess = true;
         let gameOver = false;
         const handValues = getHandValues(cards);
-
-        console.log(handValues);
 
         if(handValues.some(score => score < handValues[game.cabo - 1])){
           handValues[game.cabo - 1] += 10;
@@ -287,14 +283,14 @@ function Card({game, card, socket, dispatch}) {
     return topIndex;
   }
 
-  function changeTurn(newCards){
-    if(newCards){
-      updateCards(newCards, true);
+  function changeTurn(update, cards){
+    if(update){
+      updateCards(cards, true);
     }
     setTimeout(() => {
       socket.emit("change turn", {roomName: game.name});
       dispatch({type: CHANGE_TURN});
-      checkRoundEnd(newCards);
+      checkRoundEnd(cards);
     }, 1000);
   }
 
@@ -331,7 +327,7 @@ function Card({game, card, socket, dispatch}) {
       updateCards(game.cards);
       socket.emit('remove highlight', {roomName: game.name})
       if(endTurn){
-        changeTurn(game.cards);
+        changeTurn(false, game.cards);
       }
     }, 2000);
   }
@@ -351,7 +347,7 @@ function Card({game, card, socket, dispatch}) {
     updateCards(newCards, true);
     dispatch({type: REMOVE_SWAP_CARD});
     dispatch({type: REMOVE_SELECTS});
-    changeTurn(newCards);
+    changeTurn(true, newCards.map(card => ({...card, highlight: false})));
   }
 
   function handleHandCardClick(){
@@ -383,7 +379,7 @@ function Card({game, card, socket, dispatch}) {
         {
           let newCards = moveDrawCardToHand(card.hand, card.handPosition, game.cards);
           newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
-          changeTurn(newCards);
+          changeTurn(true, newCards);
         }
         break;
 
@@ -392,7 +388,7 @@ function Card({game, card, socket, dispatch}) {
         {
           let newCards = moveDiscardCardToHand(card.hand, card.handPosition, game.cards);
           newCards = moveHandCardToDiscard(card.hand, card.handPosition, newCards);
-          changeTurn(newCards);
+          changeTurn(true, newCards);
         }
         break;
 
@@ -492,7 +488,7 @@ function Card({game, card, socket, dispatch}) {
     const cardNumber = card.value.split('_')[1];
     if(cardNumber === "7" || cardNumber === "8"){
       if(game.cards.filter(gameCard => gameCard.hand === game.player - 1).length === 0){
-        changeTurn(game.cards);
+        changeTurn(false, game.cards);
       }
       updatePhase('peek', true)
       //PEEK
@@ -504,12 +500,13 @@ function Card({game, card, socket, dispatch}) {
       //SWAP
     } else if(card.value === "s_13" || card.value === "c_13"){
       if(game.cards.filter(gameCard => gameCard.hand === game.player - 1).length === 0){
-        changeTurn(game.cards);
+        changeTurn(false, game.cards);
+      } else {
+        updatePhase('spy and swap: peek', true)
       }
-      updatePhase('spy and swap: peek', true)
       //SPY AND SWAP
     } else {
-      changeTurn(game.cards);
+      changeTurn(false, game.cards);
     }
   }
 
