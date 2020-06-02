@@ -35,8 +35,8 @@ body, html {
 }
 
 .game-panel-container {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
   height: 100%;
 }
 

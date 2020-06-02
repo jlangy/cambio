@@ -119,6 +119,7 @@ export default function(state = initialState, action){
         return {...state, swapCard: action}
     
     case CABO:
+      if(!state.cabo)
       {
         const {player} = action;
         return {...state, cabo: player, turnsRemaining: state.totalPlayers}

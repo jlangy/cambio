@@ -24,83 +24,45 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
     }
   }, [editing])
 
-  function gameMessage(){
+  const {information, action} = (function gameMessage(){
     const playerName = game.players[game.turn - 1] && game.players[game.turn-1].player;
     const slapName = game.players[game.slapTurn - 1] && game.players[game.slapTurn-1].player;
     switch (game.gamePhase){
       case 'initialCardPick':
-        return `${playerName}: Pick a card from the discard pile or the draw pile`
+        return {information: `${playerName}: Pick a card from the discard pile or the draw pile`, action: `Choosing Draw/Discard Card`}
       case 'peeking':
-        return `Game ready. Select two of your cards to see before starting the game.`
+        return {information: `Game ready. Select two of your cards to see before starting the game.`, action: `Select Own Card`}
       case 'drawCardSelected':
-        return `${playerName} selected a draw card. Either discard, or swap it out with one of your cards.`
+        return {information: `${playerName} selected a draw card. Either discard, or swap it out with one of your cards.`, action: `Draw Card Selected`}
       case 'discardCardSelected':
-        return `${playerName} selected the discard card. Swap it out with one of your cards.`
+        return {information: `${playerName} selected the discard card. Swap it out with one of your cards.`, action: `Discard Card Selected`}
       case 'slap selection':
-        return `${playerName}: Pick a card that you think matches the draw card.`
+        return {information: `${playerName}: Pick a card that you think matches the draw card.`, action: `Matching Slap Card`}
       case 'slap replacement':
-        return `${slapName}: Pick a card from your hand to replace the removed card.`
+        return {information: `${slapName}: Pick a card from your hand to replace the removed card.`, action: `Replacing Slap Discard`}
       case 'peek':
-        return `${playerName}: Select one of your own cards to look at.`
+        return {information: `${playerName}: Select one of your own cards to look at.`, action: `Select Own Card`}
       case 'spy':
-        return `${playerName}: Select a different players card to look at.`
+        return {information: `${playerName}: Select a different players card to look at.`, action: `Select Others Card`}
       case 'swap':
-        return `${playerName}: Select two cards to swap their places.`
+        return {information: `${playerName}: Select two cards to swap their places.`, action: `Selecting Swap Card`}
       case 'spy and swap: peek':
-        return `${playerName}: Select one of your own cards to look at.`
+        return {information: `${playerName}: Select one of your own cards to look at.`, action: `Select Own Card`}
       case 'spy and swap: spy':
-        return `${playerName}: Select a different players card to look at.`
+        return {information: `${playerName}: Select a different players card to look at.`, action: `Select Others Card`}
       case 'spy and swap: swap':
-        return `${playerName}: Select two cards to swap their places.`
+        return {information: `${playerName}: Select two cards to swap their places.`, action: `Selecting Swap Card`}
       case 'inactive':
-        return 'waiting...'
+        return {information: 'waiting...', action: 'Waiting...'}
       case 'slapping':
-        return 'Slapping phase! Hit spacebar if you know a matching card in any players hand.'
+        return {information: 'Slapping phase! Hit spacebar if you know a matching card in any players hand.', action: 'Slapping'}
       default:
-        return 'should probs have a message here'
+        return {information: 'No info here', action: 'No action here'}
     }
-  }
-  
-  function gamePhaseMessage(){
-    switch (game.gamePhase){
-      case 'initialCardPick':
-        return `Choosing Draw/Discard Card`
-      case 'peeking':
-        return `Select Own Card`
-      case 'drawCardSelected':
-        return `Draw Card Selected`
-      case 'discardCardSelected':
-        return `Discard Card Selected`
-      case 'slap selection':
-        return `Matching Slap Card`
-      case 'slap replacement':
-        return `Replacing Slap Discard`
-      case 'peek':
-        return `Select Own Card`
-      case 'spy':
-        return `Select Others Card`
-      case 'swap':
-        return `Selecting Swap Card`
-      case 'spy and swap: peek':
-        return `Select Own Card`
-      case 'spy and swap: spy':
-        return `Select Others Card`
-      case 'spy and swap: swap':
-        return `Selecting Swap Card`
-      case 'inactive':
-        return 'Waiting...'
-      case 'slapping':
-        return 'Slapping'
-      default:
-        return 'should probs have a message here'
-    }
-  }
-
+  })();
+ 
   const handleClick = () => {
-    // console.log(document.getElementById('player-name-input'))
-    // document.getElementById('player-name-input').focus();
     if(editing){
-      console.log(game.player, name)
       dispatch({type: CHANGE_NAME, name, player: game.player});
       socket.emit('change name', {name, player: game.player, roomName: game.name})
     }
@@ -116,17 +78,17 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
 
       <div className="panel-item">
         <div className="panel-title">Active Player: </div> 
-        <p className="panel-content"> {game.players[game.turn - 1].player}</p>
+        <p className="panel-content"> {game.gamePhase === 'peeking' ? 'All players' : game.players[game.turn - 1].player}</p>
       </div>
 
       <div className="panel-item">
         <p className='panel-title'>Current Action:</p>
-        <p className="panel-content action-content"> {gamePhaseMessage()}</p>
+        <p className="panel-content action-content"> {action}</p>
       </div>
       
       <div className="panel-item">
         <p className='panel-title'>Action Information:</p>
-        <p className="panel-content gamephase-msg"> {gameMessage()}</p>
+        <p className="panel-content gamephase-msg"> {information}</p>
       </div>
       
       <div className='panel-item'>
