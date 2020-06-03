@@ -66,6 +66,9 @@ const cardToImg = {
 }
 
 function Card({game, card, socket, dispatch}) {
+  const activePlayersHand = card.hand + 1 === game.player;
+  const activeSlappersHand = card.hand + 1 === game.slapTurn;
+  
   function getTop(){
     //In a players hand
     if(card.hand || card.hand === 0){
@@ -254,6 +257,8 @@ function Card({game, card, socket, dispatch}) {
         if(handValues.some(score => score < handValues[game.cabo - 1])){
           handValues[game.cabo - 1] += 10;
           caboSuccess = false;
+        } else {
+          handValues[game.cabo - 1] -= 10;
         }
 
         const newPlayers = game.players.map((player,i) => ({...player, score: player.score + handValues[i]}))
@@ -269,10 +274,6 @@ function Card({game, card, socket, dispatch}) {
       }
     }
   }
-
-  const activePlayersHand = card.hand + 1 === game.player;
-  
-  const activeSlappersHand = card.hand + 1 === game.slapTurn;
 
   function getNextHandSlot(hand, cards){
     const handCards = cards.filter(card => card.hand === hand);

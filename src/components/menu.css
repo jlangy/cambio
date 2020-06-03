@@ -9,6 +9,26 @@
   justify-content: center;
 }
 
+.rules-title {
+  font-family: Satisfy;
+  font-size: var(--large-font);
+  text-align: center;
+}
+
+.rules-header {
+  font-size: var(--medium-font);
+  font-family: Satisfy;
+}
+
+.rules {
+  font-size: var(--medium-font);
+}
+
+.rules-container {
+  max-width: 1000px;
+  margin: auto;
+}
+
 .input-box {
   display: flex;
   flex-direction: column;
