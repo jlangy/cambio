@@ -20,7 +20,7 @@ function Game({game, socket, dispatch}) {
       }
       {game.roundOver && 
         <div className='round-end-info'>
-          {`Round Over: ${game.players[game.cabo -1 ].player} knocked ${game.caboSuccess ? 'Successfully' : 'Unsuccessfully'}`}
+          {game.cabod ? `Round Over: ${game.players[game.cabo - 1] && game.players[game.cabo -1 ].player} knocked ${game.caboSuccess ? 'Successfully' : 'Unsuccessfully'}` : 'Round Over'}
         </div>
       }
       <p className="title">Cambio</p>

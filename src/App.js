@@ -106,8 +106,8 @@ function App({game, dispatch}) {
       dispatch({type: CABO, player})
     });
 
-    socket.on('end round', ({caboSuccess, newPlayers, gameOver}) => {
-      dispatch({type: END_ROUND, caboSuccess, newPlayers, gameOver})
+    socket.on('end round', ({caboSuccess, newPlayers, gameOver, cabod}) => {
+      dispatch({type: END_ROUND, caboSuccess, newPlayers, gameOver, cabod})
     });
 
     socket.on('slapping on', () => {

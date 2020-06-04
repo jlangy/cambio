@@ -19,10 +19,7 @@ const Deck = require('card-deck');
 //   'j_0','j_0'
 // ]
 const cardsDeck = [
-  'c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13',
-  'c_13','c_13','c_13','c_13','c_13','c_13',
-  'c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13',
-  'c_13','c_13','c_13','c_13','c_13','c_13',
+  'c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13','c_13'
   // 'c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12',
   // 'c_12','c_12','c_12','c_12','c_12','c_12',
   // 'c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12','c_12',
@@ -108,8 +105,8 @@ io.on('connection', socket => {
     socket.to(info.roomName).emit('change name', info)
   })
 
-  socket.on('end round', ({roomName, gameOver, caboSuccess, newPlayers}) => {
-    socket.to(roomName).emit('end round', {newPlayers, caboSuccess, gameOver});
+  socket.on('end round', ({roomName, gameOver, caboSuccess, newPlayers, cabod}) => {
+    socket.to(roomName).emit('end round', {newPlayers, caboSuccess, gameOver, cabod});
     if(!gameOver){
       setTimeout(() => {
         io.in(roomName).emit('new round', {cards: setUpDeck(rooms[roomName].totalPlayers)});

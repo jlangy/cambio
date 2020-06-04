@@ -247,32 +247,44 @@ function Card({game, card, socket, dispatch}) {
     return handValues;
   }
 
-  function checkRoundEnd(cards){
+  function endRound(cards){
+    let caboSuccess = true;
+    let gameOver = false;
+    let cabod = true;
+    const handValues = getHandValues(cards);
+
     if(game.cabo){
+      if(handValues.some(score => score < handValues[game.cabo - 1])){
+        handValues[game.cabo - 1] += 10;
+        caboSuccess = false;
+      } else {
+        handValues[game.cabo - 1] -= 10;
+      }
+    } else {
+      cabod = false;
+    }
+
+    const newPlayers = game.players.map((player,i) => ({...player, score: player.score + handValues[i]}))
+    if(newPlayers.some(player => player.score > 50)){
+      gameOver = true;
+    }
+
+    dispatch({type: END_ROUND, caboSuccess, gameOver, newPlayers, cabod});
+    socket.emit('end round', {roomName: game.name, gameOver, newPlayers, caboSuccess, cabod})
+  }
+
+  function checkRoundEnd(cards){
+    console.log(cards);
+    if(cards.filter(card => card.draw || card.draw === 0).length === 0){
+      endRound(cards);
+    } else if(game.cabo){
       if(game.turnsRemaining === 1){
-        let caboSuccess = true;
-        let gameOver = false;
-        const handValues = getHandValues(cards);
-
-        if(handValues.some(score => score < handValues[game.cabo - 1])){
-          handValues[game.cabo - 1] += 10;
-          caboSuccess = false;
-        } else {
-          handValues[game.cabo - 1] -= 10;
-        }
-
-        const newPlayers = game.players.map((player,i) => ({...player, score: player.score + handValues[i]}))
-        if(newPlayers.some(player => player.score > 50)){
-          gameOver = true;
-        }
-
-        dispatch({type: END_ROUND, caboSuccess, gameOver, newPlayers});
-        socket.emit('end round', {roomName: game.name, gameOver, newPlayers, caboSuccess})
+        endRound(cards);
       } else {
         dispatch({type: CABO_TURN_END});
         socket.emit('cabo turn end', {roomName: game.name});
       }
-    }
+    } 
   }
 
   function getNextHandSlot(hand, cards){

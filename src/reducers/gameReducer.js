@@ -28,7 +28,7 @@ export default function(state = initialState, action){
     case NEW_ROUND:
       {
         const {cards} = action;
-        return {...state, cabo: false, turnsRemaining: null, roundOver: false, peeked: 0, cards, caboSuccess: null, gamePhase: 'peeking', round: state.round + 1, turn: (state.round + 1) % (state.totalPlayers) || state.totalPlayers}
+        return {...state, cabo: false, turnsRemaining: null, roundOver: false, peeked: 0, cards, caboSuccess: null, gamePhase: 'peeking', round: state.round + 1, turn: (state.round + 1) % (state.totalPlayers) || state.totalPlayers, cabod: null}
       }
     case TEST_GAME:
       return {
@@ -130,9 +130,9 @@ export default function(state = initialState, action){
     
     case END_ROUND:
       {
-        const {caboSuccess, gameOver, newPlayers} = action;
+        const {caboSuccess, gameOver, newPlayers, cabod} = action;
         {
-          return {...state, roundOver: true, players: newPlayers, caboSuccess, gameOver}
+          return {...state, roundOver: true, players: newPlayers, caboSuccess, gameOver, cabod}
         }
       }
 
