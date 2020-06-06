@@ -110,7 +110,7 @@ io.on('connection', socket => {
     if(!gameOver){
       setTimeout(() => {
         io.in(roomName).emit('new round', {cards: setUpDeck(rooms[roomName].totalPlayers)});
-      }, 320000);
+      }, 12000);
     }
   })
 

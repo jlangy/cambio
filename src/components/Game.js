@@ -18,9 +18,11 @@ function Game({game, socket, dispatch}) {
           <button id="menu-btn" onClick={menuClick}>Menu</button>
         </div>
       }
+
       {game.roundOver && 
         <div className='round-end-info'>
           {game.cabod ? `Round Over: ${game.players[game.cabo - 1] && game.players[game.cabo -1 ].player} knocked ${game.caboSuccess ? 'Successfully' : 'Unsuccessfully'}` : 'Round Over'}
+          <p className="shuffling-message">Preparing New Round...</p>
         </div>
       }
       <p className="title">Cambio</p>
