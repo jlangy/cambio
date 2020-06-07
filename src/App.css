@@ -53,3 +53,52 @@ button {
 input {
   font-size: var(--medium-font)
 }
+
+@media (max-aspect-ratio: 7/5){
+  .game-panel-container{
+    justify-content: flex-start !important;
+  }
+  .info-panel-container {
+    flex-shrink: 0;
+  }
+  .game-container {
+    width: 70vw !important;
+    height: 70vw !important;
+  }
+  .info-panel-container{
+    flex-basis: 30% !important;
+  }
+}
+
+@media (max-height: 860px) {
+  .panel-title {
+    font-size: 1.2em !important;
+  }
+  .panel-content {
+    font-size: 1em !important;
+  }
+  .score-name {
+    font-size: .9em !important;
+  }
+  .score-value {
+    font-size: .9em !important;
+  }
+  #cambio-btn {
+    font-size: var(--medium-font) !important;
+  }
+  #player-name-input {
+    font-size: 2em !important;
+  }
+  .player-name {
+    font-size: 1em !important;
+  }
+  .title {
+    font-size: 2em !important;
+  }
+}
+
+@media (max-width: 1000px) {
+  .input-container>input{
+    font-size: 1em !important;
+  }
+}

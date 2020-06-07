@@ -103,6 +103,16 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
         <p className='panel-content'>{game.round}</p>
       </div>
 
+      <div id="cambio-btn-container">
+        
+        <div className='panel-item'>
+        {!game.cabo ? <p className="panel-title">No one has knocked!</p> : <p className="panel-title">Player {game.cabo} knocked. {game.turnsRemaining === 1 ? "1 turn remainging." : `${game.turnsRemaining} turns remaining.`}</p>}
+        </div>
+        
+        <button id="cambio-btn" onClick={handleCabo} disabled={game.player !== game.turn || game.gamePhase !== 'initialCardPick' || game.cabo}>Knock!</button>
+        {/* <button id="cambio-btn" onClick={handleCabo} disabled={true}>Knock!</button> */}
+      </div>
+
       <div className="panel-item">
         <h3 className='panel-title'>Scores:</h3> 
         {game.players.map(({player, score}, i) => 
@@ -112,16 +122,6 @@ function InfoPanel({game, dispatch, socket, slapCounter}) {
           <p className='score-value'>{`${score}`}</p>
         </div>  
         )}
-      </div>
-
-      <div id="cambio-btn-container">
-        
-        <div className='panel-item'>
-        {!game.cabo ? <p className="panel-title">No one has knocked!</p> : <p className="panel-title">Player {game.cabo} knocked. {game.turnsRemaining === 1 ? "1 turn remainging." : `${game.turnsRemaining} turns remaining.`}</p>}
-        </div>
-        
-        <button id="cambio-btn" onClick={handleCabo} disabled={game.player !== game.turn || game.gamePhase !== 'initialCardPick' || game.cabo}>Knock!</button>
-        {/* <button id="cambio-btn" onClick={handleCabo} disabled={true}>Knock!</button> */}
       </div>
 
     </div>

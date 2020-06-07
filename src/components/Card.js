@@ -291,7 +291,7 @@ function Card({game, card, socket, dispatch}) {
     const handCards = cards.filter(card => card.hand === hand);
     let topIndex = 0;
     handCards.forEach(card => {
-      topIndex = card.handPosition > topIndex ? card.handPosition + 1 : topIndex;
+      topIndex = card.handPosition >= topIndex ? card.handPosition + 1 : topIndex;
     });
     return topIndex;
   }
